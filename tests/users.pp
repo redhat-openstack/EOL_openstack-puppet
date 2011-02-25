@@ -30,3 +30,19 @@ $classes = {
 }
 
 create_resources('class', $classes)
+
+class create_resources(
+ $ensure,
+ $user_name=$name
+){
+ user{$name: ensure => $ensure}
+ notify{$user_name:}
+}
+
+define create_resources::user(
+ $ensure,
+ $user_name=$operatingsystem
+){
+  user{$name: ensure => $ensure}
+  notify{$user_name:}
+}
