@@ -1,4 +1,4 @@
-- License - GPL2
+- License - Apache Version 2.0
 - Copyright - Puppetlabs 2011
 
 This module contains a custom function for puppet that can be used to dynamically add resources to the catalog.
