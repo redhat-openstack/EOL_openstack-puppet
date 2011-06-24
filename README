@@ -1,6 +1,9 @@
 - License - Apache Version 2.0
 - Copyright - Puppetlabs 2011
 
+*NOTE* - this has exists in 2.7.x core, it has been published seperately
+so that it can be used with 2.6.x
+
 This module contains a custom function for puppet that can be used to dynamically add resources to the catalog.
 
 I wrote this to use with an external node classifier that consumes YAML.
