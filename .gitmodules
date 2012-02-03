@@ -3,7 +3,7 @@
 	url = git://github.com/puppetlabs/puppet-apt.git
 [submodule "modules/mysql"]
 	path = modules/mysql
-	url = git://github.com/puppetlabs/puppetlabs-mysql.git
+	url = git://github.com/derekhiggins/puppetlabs-mysql.git
 [submodule "modules/rabbitmq"]
 	path = modules/rabbitmq
 	url = git://github.com/puppetlabs/puppetlabs-rabbitmq.git
@@ -12,10 +12,10 @@
 	url = git://github.com/puppetlabs/puppetlabs-stdlib.git
 [submodule "modules/glance"]
 	path = modules/glance
-	url = git://github.com/puppetlabs/puppetlabs-glance.git
+	url = git://github.com/derekhiggins/puppetlabs-glance.git
 [submodule "modules/nova"]
 	path = modules/nova
-	url = git://github.com/puppetlabs/puppetlabs-nova.git
+	url = git://github.com/derekhiggins/puppetlabs-nova.git
 [submodule "modules/create_resources"]
 	path = modules/create_resources
 	url = git://github.com/puppetlabs/puppetlabs-create_resources.git
