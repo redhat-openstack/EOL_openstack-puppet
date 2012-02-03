@@ -12,8 +12,8 @@
 # Sample Usage:
 #
 class mysql::params{
-  $socket                   = '/var/run/mysqld/mysqld.sock'
-  case $::operatingsystem {
+  $socket                   = '/var/lib/mysql/mysql.sock'
+  case $operatingsystem {
     'centos', 'redhat', 'fedora': {
       $service_name         = 'mysqld'
       $client_package_name  = 'mysql'

@@ -1,12 +1,12 @@
 [client]
 port    = <%= port %>
-socket    = /var/run/mysqld/mysqld.sock
+socket    = /var/lib/mysql/mysql.sock
 [mysqld_safe]
-socket    = /var/run/mysqld/mysqld.sock
+socket    = /var/lib/mysql/mysql.sock
 nice    = 0
 [mysqld]
 user    = mysql
-socket    = /var/run/mysqld/mysqld.sock
+socket    = /var/lib/mysql/mysql.sock
 port      = <%= port %>
 basedir   = /usr
 datadir   = /var/lib/mysql
@@ -30,4 +30,3 @@ max_allowed_packet = 16M
 [mysql]
 [isamchk]
 key_buffer    = 16M
-!includedir /etc/mysql/conf.d/
