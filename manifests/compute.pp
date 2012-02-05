@@ -15,8 +15,15 @@ class nova::compute(
   } else {
     $service_ensure = 'stopped'
   }
+
+  package {"libvirt":
+    ensure => 'present'
+  }
   
-  service {"libvirtd" :}
+  service {"libvirtd" :
+    ensure => 'running',
+    require => Package['libvirt']
+  }
 
   service { "nova-compute":
     name => 'openstack-nova-compute',
