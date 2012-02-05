@@ -1,56 +1,30 @@
 Puppet Labs OpenStack
 =====================
 
-A collection of modules to install a single node OpenStack server.
-
-Thanks to Canonical and Rackspace for their assistance in developing these modules.
+A collection of modules to install a single Fedora node OpenStack server.
+The origional Ubuntu version lives here
+https://github.com/puppetlabs/puppetlabs-openstack
 
 Requirements
 ------------
 
-* Currently only works on Ubuntu Natty
+* Currently only works on Fedora 16
 * Puppet 2.6.8 or later
-* Nova PPA
 
 Installation
 ------------
 
-1. Install Python software properties
+1. Install Puppet A
+    $ sudo yum install puppet
 
-        $ sudo apt-get install -y python-software-properties
+2. Download the Puppet OpenStack module
+    $ cd ~ && git clone --recurse git://github.com/puppetlabs/puppetlabs-openstack.git
 
-2. Install the Nova PPA
+3. Copy the modules into the Puppet modulepath
+    $ sudo cp -R ~/puppetlabs-openstack/modules/* /etc/puppet/modules/
 
-        $ sudo add-apt-repository ppa:nova-core/trunk
-
-3. Update APT
-
-        $ sudo apt-get update
-
-4. Install Puppet -- On Oneiric Ocelot (11.10) the ubuntu repos have the correct version puppet but on Natty you have to manually get the 11.10 packages 
-
-        $ sudo apt-get install libxmlrpc-ruby libopenssl-ruby libshadow-ruby1.8 libaugeas-ruby1.8
-	$ wget http://mirror.pnl.gov/ubuntu//pool/main/p/puppet/puppet_2.6.8-1ubuntu1_all.deb \
-   		http://mirror.pnl.gov/ubuntu//pool/main/p/puppet/puppet-common_2.6.8-1ubuntu1_all.deb \
-   		http://mirror.pnl.gov/ubuntu//pool/main/f/facter/facter_1.5.9-1ubuntu1_all.deb
-	$ sudo dpkg -i *.deb
-
-	make sure you have version 2.6.8
-	$ sudo puppet --version
-	2.6.8
-
-
-5. Download the Puppet OpenStack module
-
-        $ cd ~ && git clone --recurse git://github.com/puppetlabs/puppetlabs-openstack.git
-
-6. Copy the modules into the Puppet modulepath
-
-        $ sudo cp -R ~/puppetlabs-openstack/modules/* /etc/puppet/modules/
-
-7. Run Puppet
-
-        $ sudo puppet apply --verbose ~/puppetlabs-openstack/manifests/all.pp
+4. Run Puppet
+    $ sudo puppet apply --verbose ~/puppetlabs-openstack/manifests/fedora.pp
 
 Usage
 -----
@@ -77,6 +51,8 @@ Usage
 5. You can see running instances
 
         $ euca-describe-instances
+
+BELOW THIS POINT ON, IS FROM THE ORIGIONAL UBUNTU README, NOT TRIED ON FEDORA
 
 Installing With Vagrant
 ------------------------
