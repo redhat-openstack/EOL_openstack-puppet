@@ -8,5 +8,7 @@ class glance(
     mode    => 770,
     require => Package['openstack-glance']
   }
+
   package { 'openstack-glance': ensure => $package_ensure }
+  package { 'python-migrate': ensure => 'present' }
 }
