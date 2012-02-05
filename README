@@ -18,9 +18,10 @@ Installation
     $ sudo yum install puppet
 
 2. Download the Puppet OpenStack module
-    $ cd ~ && git clone --recurse git://github.com/puppetlabs/puppetlabs-openstack.git
+    $ cd ~ && git clone --recurse git://github.com/derekhiggins/puppetlabs-openstack.git
 
 3. Copy the modules into the Puppet modulepath
+    $ sudo mkdir -p /etc/puppet/modules/
     $ sudo cp -R ~/puppetlabs-openstack/modules/* /etc/puppet/modules/
 
 4. Run Puppet
