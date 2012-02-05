@@ -9,15 +9,11 @@ class nova::scheduler( $enabled ) {
     $service_ensure = 'stopped'
   }
 
-  package { "nova-scheduler":
-    ensure  => present,
-    require => Package["python-greenlet"]
-  }
-
   service { "nova-scheduler":
+    name => 'openstack-nova-scheduler',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["nova-scheduler"],
+    require => Package["openstack-nova"],
     #subscribe => File["/etc/nova/nova.conf"]
   }
 }

@@ -19,6 +19,9 @@ define nova::network::bridge ( $ip, $netmask = "255.255.255.0" )
         notify => Exec["networking-refresh"],
       }
     }
+    
+    'fedora' : {
+    }
 
     default: { fail('nova::network_bridge currently only supports Debian and Ubuntu') }
 

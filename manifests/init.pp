@@ -23,11 +23,13 @@ class nova(
   $verbose = false,
   $nodaemon = false,
   $periodic_interval = '60',
-  $report_interval = '10'
+  $report_interval = '10',
+  $libvirt_type = 'qemu'
+
 ) {
 
   Nova_config<| |> {
-    require +> Package["nova-common"],
+    require +> Package["openstack-nova"],
     before +> File['/etc/nova/nova.conf'],
     notify +> Exec['post-nova_config']
   }
@@ -41,7 +43,7 @@ class nova(
   }
 
   class { 'nova::utilities': }
-  package { ["python-nova", "nova-common", "nova-doc"]:
+  package { ["python-nova", "openstack-nova", "openstack-nova-doc"]:
     ensure  => present,
     require => Package["python-greenlet"]
   }
@@ -57,7 +59,7 @@ class nova(
     mode    => '751',
     owner   => 'nova',
     group   => 'nova',
-    require => Package['nova-common'],
+    require => Package['openstack-nova'],
   }
   file { '/etc/nova/nova.conf':
     owner => 'nova',
@@ -104,6 +106,9 @@ class nova(
     # as well as controller.
     'network_manager': value => $network_manager;
     'use_deprecated_auth': value => true;
+    'default_instance_type': value => 'm1.tiny';
+    'libvirt_type': value => $libvirt_type;
+
   }
 
   exec { 'post-nova_config':
@@ -114,6 +119,13 @@ class nova(
   if $network_manager == 'nova.network.manager.FlatManager' {
     nova_config {
       'flat_network_bridge': value => $flat_network_bridge
+    }
+  }
+
+  if $network_manager == 'nova.network.manager.FlatDHCPManager' {
+    nova_config {
+      'dhcpbridge': value => "/usr/bin/nova-dhcpbridge";
+      'dhcpbridge_flagfile': value => "/etc/nova/nova.conf";
     }
   }
 

@@ -15,16 +15,14 @@ class nova::compute(
   } else {
     $service_ensure = 'stopped'
   }
-
-  package { "nova-compute":
-    ensure => present,
-    require => Package['nova-common'],
-  }
+  
+  service {"libvirtd" :}
 
   service { "nova-compute":
+    name => 'openstack-nova-compute',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["nova-compute"],
+    require => [Package["openstack-nova"], Service["libvirtd"]],
     before  => Exec['networking-refresh'],
   }
 

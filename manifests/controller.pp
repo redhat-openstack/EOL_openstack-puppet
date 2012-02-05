@@ -45,6 +45,11 @@ class nova::controller(
     rabbit_userid       => $rabbit_userid,
     rabbit_password     => $rabbit_password,
     rabbit_virtual_host => $rabbit_virtual_host,
+
+    lock_path => '/var/lib/nova/tmp',
+    network_manager => 'nova.network.manager.FlatDHCPManager',
+    libvirt_type => $libvirt_type
+
   }
 
   class { "nova::api": enabled => true }
@@ -54,9 +59,13 @@ class nova::controller(
     flat_network_bridge         => $flat_network_bridge,
     flat_network_bridge_ip      => $flat_network_bridge_ip,
     flat_network_bridge_netmask => $flat_network_bridge_netmask,
+    
   }
 
-  class { "nova::objectstore": enabled => true }
+  class { "nova::objectstore": 
+    enabled => true,
+  }
+
   class { "nova::scheduler": enabled => true }
 
   nova::manage::admin { $admin_user: }
