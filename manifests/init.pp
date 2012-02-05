@@ -6,7 +6,7 @@ class glance(
     owner   => 'glance',
     group   => 'root',
     mode    => 770,
-    require => Package['glance']
+    require => Package['openstack-glance']
   }
-  package { 'glance': ensure => $package_ensure }
+  package { 'openstack-glance': ensure => $package_ensure }
 }

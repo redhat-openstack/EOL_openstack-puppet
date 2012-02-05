@@ -15,7 +15,7 @@ class glance::registry(
     content => template('glance/glance-registry.conf.erb'),
     require => Class["glance"]
   }
-  service { "glance-registry":
+  service { "openstack-glance-registry":
     ensure     => running,
     enable     => true,
     hasstatus  => true,

@@ -24,7 +24,7 @@ class glance::api(
     require => Class["glance"]
   }
 
-  service { "glance-api":
+  service { "openstack-glance-api":
     ensure     => running,
     enable     => true,
     hasstatus  => true,
