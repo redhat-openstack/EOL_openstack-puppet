@@ -108,7 +108,7 @@ class nova(
     'use_deprecated_auth': value => true;
     'default_instance_type': value => 'm1.tiny';
     'libvirt_type': value => $libvirt_type;
-
+    'iscsi_helper': value => 'tgtadm';
   }
 
   exec { 'post-nova_config':
