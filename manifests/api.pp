@@ -12,7 +12,7 @@ class nova::api($enabled=false) {
   exec { "initial-db-sync":
     command     => "/usr/bin/nova-manage db sync",
     refreshonly => true,
-    require     => [Package["openstack-nova"], Nova_config['sql_connection']],
+    require     => [Package["openstack-nova"], Nova_config['sql_connection'], Class['nova::db']],
   }
 
   service { "nova-api":
