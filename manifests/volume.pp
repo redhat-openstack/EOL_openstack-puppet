@@ -27,5 +27,6 @@ class nova::volume( $enabled=false ) {
   service {'tgtd':
     ensure  => $service_ensure,
     enable  => $enabled,
+    require => Package["openstack-nova"],
   }
 }
