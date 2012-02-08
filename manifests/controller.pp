@@ -66,6 +66,10 @@ class nova::controller(
     enabled => true,
   }
 
+  class { "nova::volume": 
+    enabled => true,
+  }
+
   class { "nova::scheduler": enabled => true }
 
   nova::manage::admin { $admin_user: }
