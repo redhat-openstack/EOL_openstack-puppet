@@ -87,7 +87,7 @@ class nova(
   }
 
   nova_config {
-    'verbose': value => $verbose;
+    #'verbose': value => $verbose;
     'nodaemon': value => $nodaemon;
     'logdir': value => $logdir;
     'image_service': value => $image_service;
@@ -105,10 +105,14 @@ class nova(
     # config b/c they have to be set by both compute
     # as well as controller.
     'network_manager': value => $network_manager;
-    'use_deprecated_auth': value => true;
+    #'use_deprecated_auth': value => true;
     'default_instance_type': value => 'm1.tiny';
     'libvirt_type': value => $libvirt_type;
     'iscsi_helper': value => 'tgtadm';
+    'root_helper': value => 'sudo nova-rootwrap';
+    'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
+    'public_interface': value => 'eth0';
+
   }
 
   exec { 'post-nova_config':
