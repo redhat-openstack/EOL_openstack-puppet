@@ -18,6 +18,9 @@ $glance_port        = '9292'
 
 $api_server = 'localhost'
 
+$nova_admin_user = 'admin'
+$nova_project_name = 'nova'
+
 $lock_path = '/var/lib/nova/tmp'
 
 resources { 'nova_config':
@@ -46,6 +49,7 @@ class { 'nova::db':
   allowed_hosts => ['localhost'],
 }
 
+
 class { 'nova::controller':
   db_password => $db_password,
   db_name => $db_name,
@@ -65,6 +69,10 @@ class { 'nova::controller':
   glance_port => $glance_port,
 
   libvirt_type => 'qemu',
+
+  admin_user => $nova_admin_user,
+  project_name => $nova_project_name,
+
 }
 
 class { 'nova::compute':
@@ -88,4 +96,3 @@ class { 'nova::rabbitmq':
   port         => $rabbit_port,
   virtual_host => $rabbit_vhost,
 }
-
