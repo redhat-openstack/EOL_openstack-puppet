@@ -66,6 +66,10 @@ class nova::controller(
     enabled => true,
   }
 
+  class { "nova::cert": 
+    enabled => true,
+  }
+
   class { "nova::volume": 
     enabled => true,
   }
