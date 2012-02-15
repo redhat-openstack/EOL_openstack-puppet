@@ -112,7 +112,7 @@ class nova(
     'root_helper': value => 'sudo nova-rootwrap';
     'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
     'public_interface': value => 'eth0';
-
+    'connection_type': value => 'libvirt';
   }
 
   exec { 'post-nova_config':
