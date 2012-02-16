@@ -43,7 +43,7 @@ class nova(
   }
 
   class { 'nova::utilities': }
-  package { ["python-nova", "openstack-nova", "openstack-nova-doc"]:
+  package { ["python-nova", "openstack-nova"]:
     ensure  => present,
     require => Package["python-greenlet"]
   }
