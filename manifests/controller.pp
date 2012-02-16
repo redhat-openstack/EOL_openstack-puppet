@@ -19,6 +19,7 @@ class nova::controller(
   $flat_network_bridge_netmask  = '255.255.255.0',
 
   $nova_network = '11.0.0.0/24',
+  $nova_floating = '10.128.0.0/24',
   $available_ips = '256',
 
   $image_service = 'nova.image.glance.GlanceImageService',
@@ -86,4 +87,10 @@ class nova::controller(
     available_ips => $available_ips,
     require       => Nova::Manage::Project[$project_name],
   }
+
+  nova::manage::floating { "${project_name}-floating-${nova_network}":
+    network       => $nova_floating,
+    require       => Nova::Manage::Project[$project_name],
+  }
+
 }

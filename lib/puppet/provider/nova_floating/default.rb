@@ -1,4 +1,4 @@
-Puppet::Type.type(:nova_network).provide(:default) do
+Puppet::Type.type(:nova_floating).provide(:default) do
 
   desc "This is a default provider that does nothing. This allows us to install nova-manage on the same puppet run where we want to use it."
 
@@ -11,6 +11,6 @@ Puppet::Type.type(:nova_network).provide(:default) do
   end
 
   def exists?
-    fail('This is just the default provider for nova_network, all it does is fail')
+    fail('This is just the default provider for nova_floating, all it does is fail')
   end
 end
