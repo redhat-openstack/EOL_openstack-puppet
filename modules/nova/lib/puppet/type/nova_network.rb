@@ -15,7 +15,7 @@ Puppet::Type.newtype(:nova_network) do
 
   newparam(:label) do
     desc "The Nova network label"
-    defaultto "novanetwork"
+    defaultto "public"
   end
 
   newparam(:available_ips) do
