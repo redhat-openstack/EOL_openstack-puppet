@@ -21,6 +21,9 @@ $api_server = 'localhost'
 $nova_admin_user = 'admin'
 $nova_project_name = 'nova'
 
+$nova_network = '192.168.0.0/24'
+$floating_network = '172.20.0.0/24'
+
 $lock_path = '/var/lib/nova/tmp'
 
 resources { 'nova_config':
@@ -72,6 +75,9 @@ class { 'nova::controller':
 
   admin_user => $nova_admin_user,
   project_name => $nova_project_name,
+
+  nova_network => $nova_network,
+  floating_network => $floating_network,
 
 }
 
