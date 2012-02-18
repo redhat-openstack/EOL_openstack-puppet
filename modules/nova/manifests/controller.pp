@@ -88,7 +88,7 @@ class nova::controller(
     require       => Nova::Manage::Project[$project_name],
   }
 
-  nova::manage::floating { "${project_name}-floating-${nova_network}":
+  nova::manage::floating { "${project_name}-floating-${floating_network}":
     network       => $floating_network,
     require       => Nova::Manage::Project[$project_name],
   }
