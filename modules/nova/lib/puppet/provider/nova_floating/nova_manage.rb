@@ -8,8 +8,8 @@ Puppet::Type.type(:nova_floating).provide(:nova_manage) do
 
   def exists?
     begin
-      prefix=resource[:network].sub(/(^[0-9]*\.[0-9]*\.[0-9]*)\..*/, '\1')
-      nova_manage("floating", "list").match(/^#{prefix}\/[0-9]{1,2} /)
+      prefix=resource[:network].sub(/(^[0-9]*\.[0-9]*\.[0-9]*\.).*/, '\1')
+      return false if not nova_manage("floating", "list").match(/#{prefix}/)
     rescue
       return false
     end
