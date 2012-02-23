@@ -22,8 +22,8 @@ class keystone(
   $ec2_driver = 'keystone.contrib.ec2.backends.sql.Ec2'
 ) {
 
-
   package { 'openstack-keystone': ensure => $package_ensure }
+  package { 'python-keystoneclient': ensure => $package_ensure }
 
   exec { "keystone-db-sync":
     command     => "/usr/bin/keystone-manage db_sync",
