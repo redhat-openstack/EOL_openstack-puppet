@@ -20,7 +20,11 @@ class keystone(
   $token_driver = 'keystone.token.backends.kvs.Token',
   $expiration = '86400',
   $policy_driver = 'keystone.policy.backends.simple.SimpleMatch',
-  $ec2_driver = 'keystone.contrib.ec2.backends.sql.Ec2'
+  $ec2_driver = 'keystone.contrib.ec2.backends.sql.Ec2',
+  $ec2_host = 'localhost',
+  $image_host = 'localhost',
+  $storage_host = 'localhost',
+  $compute_host = 'localhost'
 ) {
 
   package { 'openstack-keystone': ensure => $package_ensure }
@@ -39,6 +43,16 @@ class keystone(
     group   => 'root',
     mode    => 640,
     content => template('keystone/keystone.conf.erb'),
+    require => Package['openstack-keystone'],
+    notify        => Exec["keystone-db-sync"]
+  }
+
+  file { $catalog_template_file:
+    ensure  => present,
+    owner   => 'keystone',
+    group   => 'root',
+    mode    => 640,
+    content => template('keystone/default_catalog.templates.erb'),
     require => Package['openstack-keystone'],
     notify        => Exec["keystone-db-sync"]
   }

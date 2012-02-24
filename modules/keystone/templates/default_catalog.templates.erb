@@ -1,0 +1,29 @@
+# Identity
+catalog.RegionOne.identity.publicURL = http://localhost:$(public_port)s/v2.0
+catalog.RegionOne.identity.adminURL = http://localhost:$(admin_port)s/v2.0
+catalog.RegionOne.identity.internalURL = http://localhost:$(admin_port)s/v2.0
+catalog.RegionOne.identity.name = 'Identity Service'
+
+# Compute
+catalog.RegionOne.compute.publicURL = http://<%= compute_host %>:$(compute_port)s/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.adminURL = http://<%= compute_host %>:$(compute_port)s/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.internalURL = http://<%= compute_host %>:$(compute_port)s/v1.1/$(tenant_id)s
+catalog.RegionOne.compute.name = 'Compute Service'
+
+# Image
+catalog.RegionOne.image.publicURL = http://<%= image_host %>:9292/v1
+catalog.RegionOne.image.adminURL = http://<%= image_host %>:9292/v1
+catalog.RegionOne.image.internalURL = http://<%= image_host %>:9292/v1
+catalog.RegionOne.image.name = 'Image Service'
+
+# EC2
+catalog.RegionOne.ec2.publicURL = http://<%= ec2_host %>:8773/services/Cloud
+catalog.RegionOne.ec2.adminURL = http://<%= ec2_host %>:8773/services/Admin
+catalog.RegionOne.ec2.internalURL = http://<%= ec2_host %>:8773/services/Cloud
+catalog.RegionOne.ec2.name = 'EC2 Service'
+
+# Storage
+catalog.RegionOne.object_store.publicURL = http://<%= storage_host %>:8080/v1/AUTH_$(tenant_id)s
+catalog.RegionOne.object_store.adminURL = http://<%= storage_host %>:8080/
+catalog.RegionOne.object_store.internalURL = http://<%= storage_host %>:8080/v1/AUTH_$(tenant_id)s
+catalog.RegionOne.object_store.name = 'Swift Service'
