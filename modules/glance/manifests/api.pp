@@ -73,6 +73,15 @@ class glance::api(
   $api_flavor = ''
 ) inherits glance {
 
+  file { "/etc/glance/glance-api-paste.ini":
+    ensure  => present,
+    owner   => 'glance',
+    group   => 'root',
+    mode    => 640,
+    content => template('glance/glance-api-paste.ini.erb'),
+    require => Class["glance"]
+  }
+
   file { "/etc/glance/glance-api.conf":
     ensure  => present,
     owner   => 'glance',

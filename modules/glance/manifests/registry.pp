@@ -18,6 +18,15 @@ class glance::registry(
   $registry_flavor = ''
 ) inherits glance {
 
+  file { "/etc/glance/glance-registry-paste.ini":
+    ensure  => present,
+    owner   => 'glance',
+    group   => 'root',
+    mode    => 640,
+    content => template('glance/glance-registry-paste.ini.erb'),
+    require => Class["glance"]
+  }
+
   file { "/etc/glance/glance-registry.conf":
     ensure  => present,
     owner   => 'glance',
