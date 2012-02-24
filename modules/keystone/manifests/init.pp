@@ -1,5 +1,6 @@
 class keystone(
   $package_ensure = 'present',
+  $log_file = '/var/log/keystone/keystone.log',
   $log_verbose = 'False',
   $log_debug = 'False',
   $public_port = '5000',
