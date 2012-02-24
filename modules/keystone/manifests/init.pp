@@ -1,7 +1,7 @@
 class keystone(
   $package_ensure = 'present',
-  $log_verbose = 'false',
-  $log_debug = 'false',
+  $log_verbose = 'False',
+  $log_debug = 'False',
   $public_port = '5000',
   $admin_port = '35357',
   $admin_token = 'ADMIN',

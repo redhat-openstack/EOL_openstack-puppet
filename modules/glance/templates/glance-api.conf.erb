@@ -16,15 +16,108 @@ bind_host = <%= bind_host %>
 # Port the bind the API server to
 bind_port = <%= bind_port %>
 
+# Log to this file. Make sure you do not set the same log
+# file for both the API and registry servers!
+log_file = <%= log_file %>
+
+# Backlog requests when creating socket
+backlog = <%= backlog %>
+
+# Number of Glance API worker processes to start.
+# On machines with more than one CPU increasing this value
+# may improve performance (especially if using SSL with
+# compression turned on). It is typically recommended to set
+# this value to the number of CPUs present on your machine.
+workers = <%= workers %>
+
+# ================= Syslog Options ============================
+
+# Send logs to syslog (/dev/log) instead of to file specified
+# by `log_file`
+use_syslog = <%= use_syslog %>
+
+# Facility to use. If unset defaults to LOG_USER.
+syslog_log_facility = <%= syslog_log_facility %>
+
+# ================= SSL Options ===============================
+
+# Certificate file to use when starting API server securely
+cert_file = <%= cert_file %>
+
+# Private key file to use when starting API server securely
+key_file = <%= key_file %>
+
+# ================= Security Options ==========================
+
+# AES key for encrypting store 'location' metadata, including
+# -- if used -- Swift or S3 credentials
+# Should be set to a random string of length 16, 24 or 32 bytes
+metadata_encryption_key = <%= metadata_encryption_key %>
+
+# ============ Registry Options ===============================
+
 # Address to find the registry server
 registry_host = <%= registry_host %>
 
 # Port the registry server is listening on
 registry_port = <%= registry_port %>
 
-# Log to this file. Make sure you do not set the same log
-# file for both the API and registry servers!
-log_file = <%= log_file %>
+# What protocol to use when connecting to the registry server?
+# Set to https for secure HTTP communication
+registry_client_protocol = <%= registry_client_protocol %>
+
+# The path to the key file to use in SSL connections to the
+# registry server, if any. Alternately, you may set the
+# GLANCE_CLIENT_KEY_FILE environ variable to a filepath of the key file
+registry_client_key_file = <%= registry_client_key_file %>
+
+# The path to the cert file to use in SSL connections to the
+# registry server, if any. Alternately, you may set the
+# GLANCE_CLIENT_CERT_FILE environ variable to a filepath of the cert file
+registry_client_cert_file = <%= registry_client_cert_file %>
+
+# The path to the certifying authority cert file to use in SSL connections
+# to the registry server, if any. Alternately, you may set the
+# GLANCE_CLIENT_CA_FILE environ variable to a filepath of the CA cert file
+registry_client_ca_file = <%= registry_client_ca_file %>
+
+# ============ Notification System Options =====================
+
+# Notifications can be sent when images are create, updated or deleted.
+# There are three methods of sending notifications, logging (via the
+# log_file directive), rabbit (via a rabbitmq queue), qpid (via a Qpid
+# message queue), or noop (no notifications sent, the default)
+notifier_strategy = <%= notifier_strategy %>
+
+# Configuration options if sending notifications via rabbitmq (these are
+# the defaults)
+rabbit_host = <%= rabbit_host %>
+rabbit_port = <%= rabbit_port %>
+rabbit_use_ssl = <%= rabbit_use_ssl %>
+rabbit_userid = <%= rabbit_userid %>
+rabbit_password = <%= rabbit_password %>
+rabbit_virtual_host = <%= rabbit_virtual_host %>
+rabbit_notification_exchange = <%= rabbit_notification_exchange %>
+rabbit_notification_topic = <%= rabbit_notification_topic %>
+
+# Configuration options if sending notifications via Qpid (these are
+# the defaults)
+qpid_notification_exchange = <%= qpid_notification_exchange %>
+qpid_notification_topic = <%= qpid_notification_topic %>
+qpid_host = <%= qpid_host %>
+qpid_port = <%= qpid_port %>
+qpid_username = <%= qpid_username %>
+qpid_password = <%= qpid_password %>
+qpid_sasl_mechanisms = <%= qpid_sasl_mechanisms %>
+qpid_reconnect_timeout = <%= qpid_reconnect_timeout %>
+qpid_reconnect_limit = <%= qpid_reconnect_limit %>
+qpid_reconnect_interval_min = <%= qpid_reconnect_interval_min %>
+qpid_reconnect_interval_max = <%= qpid_reconnect_interval_max %>
+qpid_reconnect_interval = <%= qpid_reconnect_interval %>
+qpid_heartbeat = <%= qpid_heartbeat %>
+# Set to 'ssl' to enable SSL
+qpid_protocol = <%= qpid_protocol %>
+qpid_tcp_nodelay = <%= qpid_tcp_nodelay %>
 
 # ============ Filesystem Store Options ========================
 
@@ -35,9 +128,14 @@ filesystem_store_datadir = <%= filesystem_store_datadir %>
 # ============ Swift Store Options =============================
 
 # Address where the Swift authentication service lives
+# Valid schemes are 'http://' and 'https://'
+# If no scheme specified,  default to 'https://'
 swift_store_auth_address = <%= swift_store_auth_address %>
 
 # User to authenticate against the Swift authentication service
+# If you use Swift authentication service, set it to 'account':'user'
+# where 'account' is a Swift storage account and 'user'
+# is a user in that account
 swift_store_user = <%= swift_store_user %>
 
 # Auth key for the user authenticating against the
@@ -51,20 +149,89 @@ swift_store_container = <%= swift_store_container %>
 # Do we create the container if it does not exist?
 swift_store_create_container_on_put = <%= swift_store_create_container_on_put %>
 
-[pipeline:glance-api]
-pipeline = versionnegotiation context apiv1app
+# What size, in MB, should Glance start chunking image files
+# and do a large object manifest in Swift? By default, this is
+# the maximum object size in Swift, which is 5GB
+swift_store_large_object_size = <%= swift_store_large_object_size %>
 
-[pipeline:versions]
-pipeline = versionsapp
+# When doing a large object manifest, what size, in MB, should
+# Glance write chunks to Swift? This amount of data is written
+# to a temporary disk buffer during the process of chunking
+# the image file, and the default is 200MB
+swift_store_large_object_chunk_size = <%= swift_store_large_object_chunk_size %>
 
-[app:versionsapp]
-paste.app_factory = glance.api.versions:app_factory
+# Whether to use ServiceNET to communicate with the Swift storage servers.
+# (If you aren't RACKSPACE, leave this False!)
+#
+# To use ServiceNET for authentication, prefix hostname of
+# `swift_store_auth_address` with 'snet-'.
+# Ex. https://example.com/v1.0/ -> https://snet-example.com/v1.0/
+swift_enable_snet = <%= swift_enable_snet %>
 
-[app:apiv1app]
-paste.app_factory = glance.api.v1:app_factory
+# ============ S3 Store Options =============================
 
-[filter:versionnegotiation]
-paste.filter_factory = glance.api.middleware.version_negotiation:filter_factory
+# Address where the S3 authentication service lives
+# Valid schemes are 'http://' and 'https://'
+# If no scheme specified,  default to 'http://'
+s3_store_host = <%= s3_store_host %>
 
-[filter:context]
-paste.filter_factory = glance.common.context:filter_factory
+# User to authenticate against the S3 authentication service
+s3_store_access_key = <%= s3_store_access_key %>
+
+# Auth key for the user authenticating against the
+# S3 authentication service
+s3_store_secret_key = <%= s3_store_secret_key %>
+
+# Container within the account that the account should use
+# for storing images in S3. Note that S3 has a flat namespace,
+# so you need a unique bucket name for your glance images. An
+# easy way to do this is append your AWS access key to "glance".
+# S3 buckets in AWS *must* be lowercased, so remember to lowercase
+# your AWS access key if you use it in your bucket name below!
+s3_store_bucket = <%= s3_store_bucket %>
+
+# Do we create the bucket if it does not exist?
+s3_store_create_bucket_on_put = <%= s3_store_create_bucket_on_put %>
+
+# When sending images to S3, the data will first be written to a
+# temporary buffer on disk. By default the platform's temporary directory
+# will be used. If required, an alternative directory can be specified here.
+s3_store_object_buffer_dir = <%= s3_store_object_buffer_dir %>
+
+# ============ RBD Store Options =============================
+
+# Ceph configuration file path
+# If using cephx authentication, this file should
+# include a reference to the right keyring
+# in a client.<USER> section
+rbd_store_ceph_conf = <%= rbd_store_ceph_conf %>
+
+# RADOS user to authenticate as (only applicable if using cephx)
+rbd_store_user = <%= rbd_store_user %>
+
+# RADOS pool in which images are stored
+rbd_store_pool = <%= rbd_store_pool %>
+
+# Images will be chunked into objects of this size (in megabytes).
+# For best performance, this should be a power of two
+rbd_store_chunk_size = <%= rbd_store_chunk_size %>
+
+# ============ Delayed Delete Options =============================
+
+# Turn on/off delayed delete
+delayed_delete = <%= delayed_delete %>
+
+# Delayed delete time in seconds
+scrub_time = <%= scrub_time %>
+
+# Directory that the scrubber will use to remind itself of what to delete
+# Make sure this is also set in glance-scrubber.conf
+scrubber_datadir = <%= scrubber_datadir %>
+
+# =============== Image Cache Options =============================
+
+# Base directory that the Image Cache uses
+image_cache_dir = <%= image_cache_dir %>
+
+[paste_deploy]
+flavor = <%= api_flavor %>
