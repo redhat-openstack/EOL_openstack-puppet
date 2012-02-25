@@ -11,7 +11,7 @@ class glance::api(
   $syslog_log_facility = 'LOG_LOCAL0',
   $cert_file = '',
   $key_file = '',
-  $metadata_encryption_key = '',
+  $metadata_encryption_key = '1234567890ABCDEF',
   $registry_host = '0.0.0.0',
   $registry_port = '9191',
   $registry_client_protocol = 'http',
