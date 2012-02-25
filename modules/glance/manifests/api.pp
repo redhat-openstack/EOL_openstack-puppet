@@ -96,7 +96,7 @@ class glance::api(
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => File["/etc/glance/glance-api.conf"],
+    subscribe  => [File["/etc/glance/glance-api.conf"], File["/etc/glance/glance-api-paste.ini"]],
     require    => Class["glance"]
   }
 

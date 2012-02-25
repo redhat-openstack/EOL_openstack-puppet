@@ -41,7 +41,7 @@ class glance::registry(
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => File["/etc/glance/glance-registry.conf"],
+    subscribe  => [File["/etc/glance/glance-registry.conf"], File["/etc/glance/glance-registry-paste.ini"]],
     require    => Class["glance"]
   }
 
