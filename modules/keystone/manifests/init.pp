@@ -6,7 +6,7 @@ class keystone(
   $public_port = '5000',
   $admin_port = '35357',
   $admin_token = 'ADMIN',
-  $compute_port = '3000',
+  $compute_port = '8774',
   $use_syslog = 'False',
   $syslog_facility = 'LOG_LOCAL0',
   $sql_connection = 'sqlite:////var/lib/keystone/keystone.sqlite',
