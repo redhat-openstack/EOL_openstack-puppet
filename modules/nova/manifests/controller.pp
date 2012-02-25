@@ -30,7 +30,8 @@ class nova::controller(
   $admin_user = 'novaadmin',
   $project_name = 'nova',
 
-  $verbose = undef
+  $verbose = undef,
+  $keystone_enabled = false
 ) {
 
 
@@ -53,7 +54,7 @@ class nova::controller(
 
   }
 
-  class { "nova::api": enabled => true }
+  class { "nova::api": enabled => true, keystone_enabled => $keystone_enabled }
 
   class { "nova::network::flat":
     enabled                     => true,
