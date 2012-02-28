@@ -45,6 +45,8 @@ class { 'mysql::ruby':
 
 class { 'keystone': }
 
+class { 'keystone::api': }
+
 class { 'nova::db':
   password      => $db_password,
   dbname        => $db_name,
@@ -80,7 +82,7 @@ class { 'nova::controller':
   nova_network => $nova_network,
   floating_network => $floating_network,
   keystone_enabled => true,
-
+  require => Class["keystone"],
 }
 
 class { 'nova::compute':
@@ -91,11 +93,13 @@ class { 'nova::compute':
 }
 
 class { 'glance::api':
-  api_flavor => 'keystone+cachemanagement'
+  api_flavor => 'keystone+cachemanagement',
+  require => Class["keystone"]
 }
 
 class { 'glance::registry':
-  registry_flavor => 'keystone'
+  registry_flavor => 'keystone',
+  require => Class["keystone"]
 }
 
 class { 'nova::rabbitmq':

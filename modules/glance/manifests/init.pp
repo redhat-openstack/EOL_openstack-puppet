@@ -12,9 +12,6 @@ class glance(
   $registry_flavor = ''
 ) {
 
-  if $api_flavor == 'keystone' or $api_flavor == 'keystone+caching' or $api_flavor == 'keystone+cachemanagement' or $registry_flavor == 'keystone' {
-    package { 'python-keystone': ensure => 'present' }
-  }
 
   file { '/etc/glance/':
     ensure  => directory,
@@ -24,6 +21,7 @@ class glance(
     require => Package['openstack-glance']
   }
 
+  package { 'python-keystone': ensure => 'present' }
   package { 'openstack-glance': ensure => $package_ensure }
   package { 'python-migrate': ensure => 'present' }
 
