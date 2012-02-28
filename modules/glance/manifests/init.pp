@@ -21,7 +21,6 @@ class glance(
     require => Package['openstack-glance']
   }
 
-  package { 'python-keystone': ensure => 'present' }
   package { 'openstack-glance': ensure => $package_ensure }
   package { 'python-migrate': ensure => 'present' }
 
