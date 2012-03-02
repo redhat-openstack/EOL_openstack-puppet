@@ -37,7 +37,7 @@ describe 'swift' do
       {
         :owner   => 'swift',
         :group   => 'swift',
-        :require => 'Package[swift]'
+        :require => 'Package[openstack-swift]'
       }
     end
     it {should contain_file('/home/swift').with(
@@ -57,13 +57,13 @@ describe 'swift' do
        :content => "[swift-hash]\nswift_hash_path_suffix = string\n"
       }.merge(file_defaults)
     )}
-    it {should contain_package('swift').with_ensure('present')}
+    it {should contain_package('openstack-swift').with_ensure('present')}
   end
 
   describe 'when overriding package_ensure parameter' do
     it 'should effect ensure state of swift package' do
       params[:package_ensure] = 'latest'
-      subject.should contain_package('swift').with_ensure('latest')
+      subject.should contain_package('openstack-swift').with_ensure('latest')
     end
   end
 

@@ -31,11 +31,11 @@ class swift(
   # maybe I should just install ssh?
   Class['ssh::server::install'] -> Class['swift']
 
-  package { 'swift':
+  package { 'openstack-swift':
     ensure => $package_ensure,
   }
 
-  File { owner => 'swift', group => 'swift', require => Package['swift'] }
+  File { owner => 'swift', group => 'swift', require => Package['openstack-swift'] }
 
   file { '/home/swift':
     ensure  => directory,

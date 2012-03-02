@@ -54,14 +54,14 @@ class swift::proxy(
     fail('Keystone is currently not supported, it should be supported soon :)')
   }
 
-  package { 'swift-proxy':
+  package { 'openstack-swift-proxy':
     ensure => $package_ensure,
   }
 
   if($auth_type == 'swauth') {
     package { 'python-swauth':
       ensure  => $package_ensure,
-      before  => Package['swift-proxy'],
+      before  => Package['openstack-swift-proxy'],
     }
   }
 
@@ -71,7 +71,7 @@ class swift::proxy(
     group   => 'swift',
     mode    => 0660,
     content => template('swift/proxy-server.conf.erb'),
-    require => Package['swift-proxy'],
+    require => Package['openstack-swift-proxy'],
   }
 
   # TODO - this needs to be updated once the init file is not broken
@@ -101,12 +101,11 @@ pre-start script
 end script
 
 post-stop exec /usr/bin/swift-init proxy-server stop',
-    before => Service['swift-proxy'],
+    before => Service['openstack-swift-proxy'],
   }
 
-  service { 'swift-proxy':
+  service { 'openstack-swift-proxy':
     ensure    => running,
-    provider  => 'upstart',
     enable    => true,
     subscribe => File['/etc/swift/proxy-server.conf'],
   }

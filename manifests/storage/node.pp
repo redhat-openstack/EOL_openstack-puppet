@@ -49,5 +49,4 @@ define swift::storage::node(
     device_name => $name,
     weight      => $weight,
   }
-
 }

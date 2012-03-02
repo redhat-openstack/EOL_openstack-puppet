@@ -35,11 +35,10 @@ describe 'swift::proxy' do
         File.join(fixture_dir, 'default_proxy_server')
       end
 
-      it { should contain_package('swift-proxy').with_ensure('present') }
+      it { should contain_package('openstack-swift-proxy').with_ensure('present') }
       it { should_not contain_package('python-swauth') }
-      it { should contain_service('swift-proxy').with(
+      it { should contain_service('openstack-swift-proxy').with(
         {:ensure    => 'running',
-         :provider  => 'upstart',
          :enable    => true,
          :subscribe => 'File[/etc/swift/proxy-server.conf]'
         }
@@ -50,7 +49,7 @@ describe 'swift::proxy' do
          :group   => 'swift',
          :mode    => '0660',
          :content => File.read(config_file),
-         :require => 'Package[swift-proxy]'
+         :require => 'Package[openstack-swift-proxy]'
         }
       )}
       # TODO this resource should just be here temporarily until packaging
@@ -73,7 +72,7 @@ describe 'swift::proxy' do
 
         it { should contain_package('python-swauth').with(
           {:ensure => 'present',
-           :before => 'Package[swift-proxy]'
+           :before => 'Package[openstack-swift-proxy]'
           }
         )}
         it { should contain_file('/etc/swift/proxy-server.conf').with(

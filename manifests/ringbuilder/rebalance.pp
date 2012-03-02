@@ -14,5 +14,6 @@ define swift::ringbuilder::rebalance() {
     command     => "swift-ring-builder /etc/swift/${name}.builder rebalance",
     path        => ['/usr/bin'],
     refreshonly => true,
+    returns     => [0,1] # 1 is a warning, 2 is an error
   }
 }

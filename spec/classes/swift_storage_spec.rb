@@ -45,10 +45,9 @@ describe 'swift::storage' do
       end
 
       ['object', 'container', 'account'].each do |type|
-        it { should contain_package("swift-#{type}").with_ensure(param_hash[:package_ensure]) }
-        it { should contain_service("swift-#{type}").with(
-          {:provider => 'upstart',
-           :ensure   => 'running',
+        it { should contain_package("openstack-swift-#{type}").with_ensure(param_hash[:package_ensure]) }
+        it { should contain_service("openstack-swift-#{type}").with(
+          {:ensure   => 'running',
            :enable    => true,
            :hasstatus => true,
            :subscribe => 'Service[rsync]'}

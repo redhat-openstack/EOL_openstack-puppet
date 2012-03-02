@@ -66,3 +66,21 @@ class { 'swift::proxy':
   account_autocreate => true,
   require            => Class['swift::ringbuilder'],
 }
+
+# I need to start the storage services after the nodes are installed 
+# since the init scipt looks for the config to start them all in one go
+service{'openstack-swift-account':
+    ensure => running,
+    require => [Swift::Storage::Node["1"], Swift::Storage::Node["2"], Swift::Storage::Node["3"], Class["swift::storage"]]
+}
+
+service{'openstack-swift-container':
+    ensure => running,
+    require => [Swift::Storage::Node["1"], Swift::Storage::Node["2"], Swift::Storage::Node["3"], Class["swift::storage"]]
+}
+
+service{'openstack-swift-object':
+    ensure => running,
+    require => [Swift::Storage::Node["1"], Swift::Storage::Node["2"], Swift::Storage::Node["3"], Class["swift::storage"]]
+}
+

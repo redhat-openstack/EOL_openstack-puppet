@@ -21,7 +21,7 @@ define swift::storage::server(
   # This makes me think that perhaps the rsync class
   # should be split into install and config
   #
-  Swift::Storage::Server[$name] ~> Service['rsync']
+  #Swift::Storage::Server[$name] ~> Service['rsync']
 
   $bind_port = $name
 
@@ -39,5 +39,4 @@ define swift::storage::server(
     owner   => $owner,
     group   => $group,
   }
-
 }

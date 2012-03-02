@@ -44,7 +44,7 @@ class swift::storage(
 
 
   class{ 'rsync::server':
-    use_xinetd => false,
+    use_xinetd => true,
     address => $storage_local_net_ip,
   }
 
@@ -52,7 +52,7 @@ class swift::storage(
     ensure    => running,
     enable    => true,
     hasstatus => true,
-    subscribe => Service['rsync'],
+    #subscribe => Service['rsync'],
   }
 
   File {
@@ -70,70 +70,34 @@ class swift::storage(
     ensure => 'present'
   }
 
-  package { 'swift-account':
+  package { 'openstack-swift-account':
     ensure => $package_ensure,
-  }
-
-  swift::storage::server { $account_port:
-    type             => 'account',
-    config_file_path => 'account-server.conf',
   }
 
   file { '/etc/swift/account-server/':
     ensure => directory,
   }
 
-  service { 'swift-account':
-    provider  => 'upstart',
-  }
-
   # container server configuration
-  package { 'swift-container':
+  package { 'openstack-swift-container':
     ensure => $package_ensure,
-  }
-
-  swift::storage::server { $container_port:
-    type             => 'container',
-    config_file_path => 'container-server.conf',
   }
 
   file { '/etc/swift/container-server/':
     ensure => directory,
   }
 
-  service { 'swift-container':
-    provider  => 'upstart',
-  }
-
   # object server configuration
-  package { 'swift-object':
+  package { 'openstack-swift-object':
     ensure => $package_ensure,
-  }
-
-  swift::storage::server { $object_port:
-    type             => 'object',
-    config_file_path => 'object-server.conf',
   }
 
   file { '/etc/swift/object-server/':
     ensure => directory,
   }
 
-  service { 'swift-object':
-    provider  => 'upstart',
+  file { "/etc/swift/${type}-server.conf":
+	ensure => "absent"
   }
-
-  # TODO this should be removed when the upstart packages are fixed.
-  define upstart() {
-    file { "/etc/init/swift-${name}.conf":
-      mode   => '0644',
-      owner  => 'root',
-      group  => 'root',
-      source => "puppet:///modules/swift/swift-${name}.conf.upstart",
-      before => Service["swift-${name}"],
-    }
-  }
-
-  swift::storage::upstart { ['object', 'container', 'account']: }
 
 }
