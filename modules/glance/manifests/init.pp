@@ -7,7 +7,9 @@ class glance(
   $keystone_auth_port = '35357',
   $keystone_auth_protocol = 'http',
   $keystone_auth_uri = 'http://127.0.0.1:5000/',
-  $keystone_admin_token = 'ADMIN',
+  $keystone_admin_user = 'glance',
+  $keystone_admin_password = 'SERVICE_PASSWORD',
+  $keystone_admin_tenant_name = 'service',
   $api_flavor = '',
   $registry_flavor = ''
 ) {
