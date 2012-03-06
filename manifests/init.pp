@@ -63,6 +63,7 @@ class xinetd {
         file { "/etc/xinetd.d/$name":
             content => template("xinetd/service.erb"),
             notify  => Service["xinetd"],
+            require => Package["xinetd"]
         } # file
     } # define service
 
@@ -76,6 +77,5 @@ class xinetd {
         ensure  => running,
         enable  => true,
         require => [ Package["xinetd"], File["/etc/xinetd.conf"] ],
-        restart => "/etc/init.d/xinetd reload",
     } # service
 } # class xinetd
