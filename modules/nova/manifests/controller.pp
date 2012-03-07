@@ -31,6 +31,7 @@ class nova::controller(
   $project_name = 'nova',
 
   $verbose = undef,
+  $allow_resize_to_same_host = false,
   $keystone_enabled = false
 ) {
 
@@ -50,7 +51,8 @@ class nova::controller(
 
     lock_path => '/var/lib/nova/tmp',
     network_manager => 'nova.network.manager.FlatDHCPManager',
-    libvirt_type => $libvirt_type
+    libvirt_type => $libvirt_type,
+    allow_resize_to_same_host => $allow_resize_to_same_host
 
   }
 

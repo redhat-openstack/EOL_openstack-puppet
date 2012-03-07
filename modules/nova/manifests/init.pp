@@ -25,7 +25,8 @@ class nova(
   $periodic_interval = '60',
   $report_interval = '10',
   $libvirt_type = 'qemu',
-  $auth_strategy = 'keystone'
+  $auth_strategy = 'keystone',
+  $allow_resize_to_same_host = false
 
 ) {
 
@@ -115,6 +116,7 @@ class nova(
     'public_interface': value => 'eth0';
     'connection_type': value => 'libvirt';
     'auth_strategy': value => $auth_strategy;
+    'allow_resize_to_same_host': value => $allow_resize_to_same_host;
   }
 
   exec { 'post-nova_config':
