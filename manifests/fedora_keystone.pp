@@ -82,6 +82,8 @@ class { 'nova::controller':
   nova_network => $nova_network,
   floating_network => $floating_network,
   keystone_enabled => true,
+  scheduler_default_filters => 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
+  allow_resize_to_same_host => true,
   require => Class["keystone"],
 }
 

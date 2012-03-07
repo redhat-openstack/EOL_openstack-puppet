@@ -26,6 +26,7 @@ class nova(
   $report_interval = '10',
   $libvirt_type = 'qemu',
   $auth_strategy = 'keystone',
+  $scheduler_default_filters = 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
   $allow_resize_to_same_host = false
 
 ) {
@@ -116,6 +117,7 @@ class nova(
     'public_interface': value => 'eth0';
     'connection_type': value => 'libvirt';
     'auth_strategy': value => $auth_strategy;
+    'scheduler_default_filters': value => $scheduler_default_filters;
     'allow_resize_to_same_host': value => $allow_resize_to_same_host;
   }
 
