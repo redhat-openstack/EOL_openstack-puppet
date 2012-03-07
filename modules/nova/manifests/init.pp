@@ -24,7 +24,8 @@ class nova(
   $nodaemon = false,
   $periodic_interval = '60',
   $report_interval = '10',
-  $libvirt_type = 'qemu'
+  $libvirt_type = 'qemu',
+  $auth_strategy = 'keystone'
 
 ) {
 
@@ -113,6 +114,7 @@ class nova(
     'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
     'public_interface': value => 'eth0';
     'connection_type': value => 'libvirt';
+    'auth_strategy': value => $auth_strategy;
   }
 
   exec { 'post-nova_config':
