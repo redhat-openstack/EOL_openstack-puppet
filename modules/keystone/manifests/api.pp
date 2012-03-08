@@ -3,6 +3,7 @@ class keystone::api(
   $log_file = '/var/log/keystone/keystone.log',
   $log_verbose = 'False',
   $log_debug = 'False',
+  $bind_host = '0.0.0.0',
   $public_port = '5000',
   $admin_port = '35357',
   $admin_token = 'ADMIN',
