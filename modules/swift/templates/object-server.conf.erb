@@ -1,0 +1,21 @@
+[DEFAULT]
+devices = <%= devices %>
+bind_ip = <%= storage_local_net_ip %>
+bind_port = <%= bind_port %>
+mount_check = false
+user = swift
+log_facility = LOG_LOCAL2
+workers = 2
+
+[pipeline:main]
+pipeline = object-server
+
+[app:object-server]
+use = egg:swift#object
+
+[object-replicator]
+vm_test_mode = yes
+
+[object-updater]
+
+[object-auditor]
