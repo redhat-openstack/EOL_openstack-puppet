@@ -66,7 +66,7 @@ class swift::storage(
   }
 
   # package dependencies
-  package { ['xfsprogs', 'parted']:
+  package { ['xfsprogs']:
     ensure => 'present'
   }
 
