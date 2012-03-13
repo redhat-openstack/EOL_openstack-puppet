@@ -100,6 +100,7 @@ class { 'glance::api':
   swift_store_auth_address => 'http://127.0.0.1:8080/auth/v1.0/',
   swift_store_user => 'test:tester',
   swift_store_key => 'testing',
+  swift_store_create_container_on_put => 'True',
   require => Class["keystone"]
 }
 
