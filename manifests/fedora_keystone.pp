@@ -82,8 +82,9 @@ class { 'nova::controller':
   nova_network => $nova_network,
   floating_network => $floating_network,
   keystone_enabled => true,
-  scheduler_default_filters => 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
+  scheduler_default_filters => 'AvailabilityZoneFilter,ComputeFilter',
   allow_resize_to_same_host => true,
+  libvirt_wait_soft_reboot_seconds => 15,
   require => Class["keystone"],
 }
 

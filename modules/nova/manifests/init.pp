@@ -27,7 +27,8 @@ class nova(
   $libvirt_type = 'qemu',
   $auth_strategy = 'keystone',
   $scheduler_default_filters = 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
-  $allow_resize_to_same_host = false
+  $allow_resize_to_same_host = false,
+  $libvirt_wait_soft_reboot_seconds = 120
 
 ) {
 
@@ -119,6 +120,7 @@ class nova(
     'auth_strategy': value => $auth_strategy;
     'scheduler_default_filters': value => $scheduler_default_filters;
     'allow_resize_to_same_host': value => $allow_resize_to_same_host;
+    'libvirt_wait_soft_reboot_seconds': value => $libvirt_wait_soft_reboot_seconds;
   }
 
   exec { 'post-nova_config':
