@@ -15,7 +15,7 @@ Puppet::Type.type(:nova_config).provide(
 
   record_line :parsed,
     :fields => %w{line},
-    :match => /(.*)/ ,
+    :match => /([^\[]*)/ ,
     :post_parse => proc { |hash|
       Puppet.debug("nova config line:#{hash[:line]} has been parsed")
       if hash[:line] =~ /^\s*(\S+)\s*=\s*([\S ]+)\s*$/
@@ -30,11 +30,11 @@ Puppet::Type.type(:nova_config).provide(
     }
 
   def self.to_line(hash)
-    if hash[:comment] then
-        hash[:comment]
-    else
-        "#{hash[:name]}=#{hash[:value]}"
-    end
+    "#{hash[:name]}=#{hash[:value]}"
+  end
+
+  def self.header
+    "# Auto Genarated Nova Config File\n[DEFAULT]\n"
   end
 
 end
