@@ -1,0 +1,10 @@
+# Qpid Puppet Module
+Dan Prince <dprince@redhat.com>
+
+This module manages the Qpid.
+
+example:
+
+class { 'qpid::server':
+  log_to_file => '/var/log/qpidd.log'
+}
