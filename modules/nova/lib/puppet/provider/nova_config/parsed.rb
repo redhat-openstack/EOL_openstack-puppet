@@ -30,7 +30,9 @@ Puppet::Type.type(:nova_config).provide(
     }
 
   def self.to_line(hash)
-    "#{hash[:name]}=#{hash[:value]}"
+    if hash[:name] and hash[:value]
+      "#{hash[:name]}=#{hash[:value]}"
+    end
   end
 
   def self.header
