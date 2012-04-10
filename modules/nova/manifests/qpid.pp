@@ -9,6 +9,9 @@ class nova::qpid(
   $realm='OPENSTACK'
 ) {
 
+  # only configure nova after the queue is up
+  Class['qpid::server'] -> Package<| title == 'openstack-nova' |>
+
   qpid_user { $user:
     password  => $password,
     file  => $file,
