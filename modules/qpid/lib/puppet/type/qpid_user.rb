@@ -1,5 +1,5 @@
 Puppet::Type.newtype(:qpid_user) do
-  desc 'Native type for managing rabbitmq users'
+  desc 'Type for managing qpid users'
 
   ensurable do
     defaultto(:present)
