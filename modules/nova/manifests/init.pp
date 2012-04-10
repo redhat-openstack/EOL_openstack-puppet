@@ -9,11 +9,29 @@ class nova(
   $glance_host = 'localhost',
   $glance_port = '9292',
   $allow_admin_api = false,
+
+  $rpc_backend = 'nova.rpc.impl_kombu',
+
   $rabbit_host = 'localhost',
   $rabbit_password='guest',
   $rabbit_port='5672',
   $rabbit_userid='guest',
   $rabbit_virtual_host='/',
+
+  $qpid_hostname = 'localhost',
+  $qpid_port = '5672',
+  $qpid_username = 'guest',
+  $qpid_password = 'guest',
+  $qpid_reconnect = true,
+  $qpid_reconnect_timeout = 0,
+  $qpid_reconnect_limit = 0,
+  $qpid_reconnect_interval_min = 0,
+  $qpid_reconnect_interval_max = 0,
+  $qpid_reconnect_interval = 0,
+  $qpid_heartbeat = 5,
+  $qpid_protocol = 'tcp',
+  $qpid_tcp_nodelay = true,
+
   $network_manager = 'nova.network.manager.FlatManager',
   $flat_network_bridge = 'br100',
   $service_down_time = 60,
@@ -96,11 +114,7 @@ class nova(
     'logdir': value => $logdir;
     'image_service': value => $image_service;
     'allow_admin_api': value => $allow_admin_api;
-    'rabbit_host': value => $rabbit_host;
-    'rabbit_password': value => $rabbit_password;
-    'rabbit_port': value => $rabbit_port;
-    'rabbit_userid': value => $rabbit_userid;
-    'rabbit_virtual_host': value => $rabbit_virtual_host;
+    'rpc_backend': value => $rpc_backend;
     # Following may need to be broken out to different nova services
     'state_path': value => $state_path;
     'lock_path': value => $lock_path;
@@ -146,6 +160,34 @@ class nova(
       'glance_api_servers': value => $glance_api_servers;
       'glance_host': value => $glance_host;
       'glance_port': value => $glance_port;
+    }
+  }
+
+  if $rpc_backend == 'nova.rpc.impl_kombu' {
+    nova_config {
+      'rabbit_host': value => $rabbit_host;
+      'rabbit_password': value => $rabbit_password;
+      'rabbit_port': value => $rabbit_port;
+      'rabbit_userid': value => $rabbit_userid;
+      'rabbit_virtual_host': value => $rabbit_virtual_host;
+    }
+  }
+
+  if $rpc_backend == 'nova.rpc.impl_qpid' {
+    nova_config {
+      'qpid_hostname': value => $qpid_hostname;
+      'qpid_port': value => $qpid_port;
+      'qpid_username': value => $qpid_username;
+      'qpid_password': value => $qpid_password;
+      'qpid_reconnect': value => $qpid_reconnect;
+      'qpid_reconnect_timeout': value => $qpid_reconnect_timeout;
+      'qpid_reconnect_limit': value => $qpid_reconnect_limit;
+      'qpid_reconnect_interval_min': value => $qpid_reconnect_interval_min;
+      'qpid_reconnect_interval_max': value => $qpid_reconnect_interval_max;
+      'qpid_reconnect_interval': value => $qpid_reconnect_interval;
+      'qpid_heartbeat': value => $qpid_heartbeat;
+      'qpid_protocol': value => $qpid_protocol;
+      'qpid_tcp_nodelay': value => $qpid_tcp_nodelay;
     }
   }
 

@@ -10,7 +10,6 @@ class qpid::server(
   $worker_threads = '17',
   $connection_backlog = '10',
   $auth = 'no',
-  $sasl_config = '/var/lib/qpid/',
   $realm = 'QPID',
   $log_to_file = 'UNSET',
   $cluster_mechanism = 'ANONYMOUS'
