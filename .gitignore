@@ -1,7 +1,3 @@
 *.swp
-images/*
-facter
-puppet
 bashrc
 .vagrant
-graphs/*
