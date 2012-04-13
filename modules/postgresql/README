@@ -1,0 +1,8 @@
+# Postgresql Puppet Module
+Dan Prince <dprince@redhat.com>
+
+This module manages the Postgresql.
+
+example:
+
+class { 'postgresql::server': }

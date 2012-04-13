@@ -34,9 +34,6 @@ Puppet::Type.newtype(:qpid_user) do
     if self[:ensure] == :present and ! self[:password]
       raise ArgumentError, 'must set password when creating user' unless self[:password]
     end
-    if self[:ensure] == :present and ! self[:password]
-      raise ArgumentError, 'must set password when creating user' unless self[:password]
-    end
   end
 
 end

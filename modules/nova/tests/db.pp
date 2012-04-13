@@ -4,7 +4,7 @@ class { 'nova':
 class { 'mysql::server':
   root_password => 'password' 
 }
-class { 'nova::db':
+class { 'nova::mysql':
   password => 'password',
   dbname   => 'nova',
   user     => 'nova',

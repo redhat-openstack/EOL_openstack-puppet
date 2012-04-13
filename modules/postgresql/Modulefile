@@ -1,0 +1,8 @@
+name    'postgresql'
+version '1.0.0'
+source 'git://github.com/fedora-openstack/openstack-puppet.git'
+author 'Dan Prince <dprince@redhat.com>'
+license 'Apache'
+summary 'PostgreSQL Server Puppet Module'
+description 'This module manages PostgreSQL. Tested on Fedora'
+project_page 'http://github.com/fedora-openstack/openstack-puppet'

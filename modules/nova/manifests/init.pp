@@ -1,6 +1,5 @@
 class nova(
   # this is how to query all resources from our clutser
-  $nova_cluster_id='localcluster',
   $sql_connection = false,
   $image_service = 'nova.image.local.LocalImageService',
   # these glance params should be optional
@@ -104,8 +103,6 @@ class nova(
   # query out the config for our db connection
   if $sql_connection {
     nova_config { 'sql_connection': value => $sql_connection }
-  } else{
-    Nova_config<<| tag == $cluster_id and value == 'sql_connection' |>>
   }
 
   nova_config {

@@ -1,4 +1,4 @@
-class nova::db(
+class nova::mysql(
   $password,
   $dbname = 'nova',
   $user = 'nova',
@@ -9,32 +9,22 @@ class nova::db(
 
   # Create the db instance before openstack-nova if its installed
   Mysql::Db[$dbname] -> Package<| title == "openstack-nova" |>
-  Mysql::Db[$dbname] ~> Exec<| title == 'initial-db-sync' |>
-
-  # now this requires storedconfigs
-  # TODO - worry about the security implications
-  @@nova_config { 'database_url':
-    value => "mysql://${user}:${password}@${host}/${dbname}",
-    tag   => $zone,
-  }
 
   mysql::db { $dbname:
     user         => $user,
     password     => $password,
     host         => $host,
     charset      => 'latin1',
-    # I may want to inject some sql
     require      => Class['mysql::server'],
-#    notify       => Exec["initial-db-sync"],
+    notify       => Exec["initial-db-sync"],
   }
 
   if $allowed_hosts {
-     nova::db::host_access { $allowed_hosts:
+     nova::mysql::host_access { $allowed_hosts:
       user      => $user,
       password  => $password,
       database  => $dbname,
     }
-  } else {
-    Nova::Db::Host_access<<| tag == $cluster_id |>>
   }
+
 }

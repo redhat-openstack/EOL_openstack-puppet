@@ -1,5 +1,4 @@
-# db/allowed_hosts.pp
-define nova::db::host_access ($user, $password, $database)  {
+define nova::mysql::host_access ($user, $password, $database)  {
   database_user { "${user}@${name}":
     password_hash => mysql_password($password),
     provider => 'mysql',

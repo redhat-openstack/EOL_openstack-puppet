@@ -25,7 +25,7 @@ class nova::api(
   exec { "initial-db-sync":
     command     => "/usr/bin/nova-manage db sync",
     refreshonly => true,
-    require     => [Package["openstack-nova"], Nova_config['sql_connection'], Class['nova::db']],
+    require     => [Package["openstack-nova"], Nova_config['sql_connection']],
   }
 
   file { "/etc/nova/api-paste.ini":

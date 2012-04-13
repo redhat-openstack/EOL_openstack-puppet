@@ -1,5 +1,6 @@
 class nova::controller(
   $db_password,
+  $db_driver = 'mysql',
   $db_name = 'nova',
   $db_user = 'nova',
   $db_host = 'localhost',
@@ -54,7 +55,7 @@ class nova::controller(
 
   class { "nova":
     verbose             => $verbose,
-    sql_connection      => "mysql://${db_user}:${db_password}@${db_host}/${db_name}",
+    sql_connection      => "${db_driver}://${db_user}:${db_password}@${db_host}/${db_name}",
     image_service       => $image_service,
     glance_api_servers  => $glance_api_servers,
     glance_host         => $glance_host,

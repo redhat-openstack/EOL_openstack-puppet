@@ -1,6 +1,7 @@
+$db_driver     = 'postgresql'
 $db_host     = 'localhost'
 $db_name     = 'nova'
-$db_username = 'nova'
+$db_user = 'nova'
 $db_password = 'password'
 
 $old_root_password = ''
@@ -38,36 +39,24 @@ class { 'nova::qpid':
   realm => $qpid_realm,
 }
 
-class { 'mysql::server':
-  config_hash => {
-                  'bind_address' => '0.0.0.0',
-                   #'root_password' => '',
-                   #'etc_root_password' => true
-                 }
-}
-
-class { 'mysql::ruby': 
-  package_provider => 'yum',
-  package_name => 'ruby-mysql',
-}
-
 class { 'keystone': }
 
 class { 'keystone::api': }
 
-class { 'nova::mysql':
-  password      => $db_password,
-  dbname        => $db_name,
-  user          => $db_username,
-  host          => $clientcert,
-  # does glance need access?
-  allowed_hosts => ['localhost'],
+class { 'postgresql::server': }
+
+class { 'nova::postgresql':
+  db_password      => $db_password,
+  db_name        => $db_name,
+  db_user          => $db_user,
+  db_host          => $db_host
 }
 
 class { 'nova::controller':
+  db_driver => $db_driver,
   db_password => $db_password,
   db_name => $db_name,
-  db_user => $db_username,
+  db_user => $db_user,
   db_host => $db_host,
 
   image_service => 'nova.image.glance.GlanceImageService',

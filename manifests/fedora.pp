@@ -43,7 +43,7 @@ class { 'mysql::ruby':
   package_name => 'ruby-mysql',
 }
 
-class { 'nova::db':
+class { 'nova::mysql':
   password      => $db_password,
   dbname        => $db_name,
   user          => $db_username,
