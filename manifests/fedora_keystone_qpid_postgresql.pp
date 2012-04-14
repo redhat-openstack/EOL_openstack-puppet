@@ -73,7 +73,8 @@ class { 'nova::postgresql':
   db_password      => $db_password,
   db_name        => $db_name,
   db_user          => $db_user,
-  db_host          => $db_host
+  db_host          => $db_host,
+  require => Class["postgresql::python"]
 }
 
 class { 'nova::controller':
