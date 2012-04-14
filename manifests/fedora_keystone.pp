@@ -51,9 +51,7 @@ class { 'nova::mysql':
   password      => $db_password,
   dbname        => $db_name,
   user          => $db_username,
-  host          => $clientcert,
-  # does glance need access?
-  allowed_hosts => ['localhost'],
+  host          => $db_host,
 }
 
 class { 'nova::controller':

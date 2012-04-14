@@ -25,6 +25,18 @@ $qpid_password = 'p@ssw0rd'
 $qpid_user = 'nova_qpid'
 $qpid_realm = 'OPENSTACK'
 
+$glance_db_host     = 'localhost'
+$glance_db_name     = 'glance'
+$glance_db_user = 'glance'
+$glance_db_password = 'password'
+$glance_sql_connection = "postgresql://${glance_db_user}:${glance_db_password}@${glance_db_host}/${glance_db_name}"
+
+$keystone_db_host     = 'localhost'
+$keystone_db_name     = 'keystone'
+$keystone_db_user = 'keystone'
+$keystone_db_password = 'password'
+$keystone_sql_connection = "postgresql://${keystone_db_user}:${keystone_db_password}@${keystone_db_host}/${keystone_db_name}"
+
 resources { 'nova_config':
   purge => true,
 }
@@ -39,11 +51,23 @@ class { 'nova::qpid':
   realm => $qpid_realm,
 }
 
+class { 'postgresql::server': }
+
+class { 'postgresql::python': }
+
 class { 'keystone': }
 
-class { 'keystone::api': }
+class { 'keystone::postgresql':
+  db_password      => $keystone_db_password,
+  db_name        => $keystone_db_name,
+  db_user          => $keystone_db_user,
+  db_host          => $keystone_db_host
+}
 
-class { 'postgresql::server': }
+class { 'keystone::api':
+  sql_connection => $keystone_sql_connection,
+  require => [Class["keystone::postgresql"], Class["postgresql::python"]]
+}
 
 class { 'nova::postgresql':
   db_password      => $db_password,
@@ -76,10 +100,10 @@ class { 'nova::controller':
   scheduler_default_filters => 'AvailabilityZoneFilter,ComputeFilter',
   allow_resize_to_same_host => true,
   libvirt_wait_soft_reboot_seconds => 15,
-  require => Class["keystone"],
   rpc_backend => 'nova.rpc.impl_qpid',
   qpid_username => $qpid_user,
   qpid_password => $qpid_password,
+  require => [Class["keystone"], Class["nova::postgresql"], Class["postgresql::python"]]
 }
 
 class { 'nova::compute':
@@ -94,7 +118,15 @@ class { 'glance::api':
   require => Class["keystone"]
 }
 
+class { 'glance::postgresql':
+  db_password      => $glance_db_password,
+  db_name        => $glance_db_name,
+  db_user          => $glance_db_user,
+  db_host          => $glance_db_host,
+}
+
 class { 'glance::registry':
   registry_flavor => 'keystone',
-  require => Class["keystone"]
+  sql_connection => $glance_sql_connection,
+  require => [Class["keystone"], Class["glance::postgresql"], Class["postgresql::python"]]
 }

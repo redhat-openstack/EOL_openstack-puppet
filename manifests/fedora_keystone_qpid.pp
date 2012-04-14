@@ -24,6 +24,18 @@ $qpid_password = 'p@ssw0rd'
 $qpid_user = 'nova_qpid'
 $qpid_realm = 'OPENSTACK'
 
+$glance_db_host     = 'localhost'
+$glance_db_name     = 'glance'
+$glance_db_user = 'glance'
+$glance_db_password = 'password'
+$glance_sql_connection = "mysql://${glance_db_user}:${glance_db_password}@${glance_db_host}/${glance_db_name}"
+
+$keystone_db_host     = 'localhost'
+$keystone_db_name     = 'keystone'
+$keystone_db_user = 'keystone'
+$keystone_db_password = 'password'
+$keystone_sql_connection = "mysql://${keystone_db_user}:${keystone_db_password}@${keystone_db_host}/${keystone_db_name}"
+
 resources { 'nova_config':
   purge => true,
 }
@@ -53,15 +65,23 @@ class { 'mysql::ruby':
 
 class { 'keystone': }
 
-class { 'keystone::api': }
+class { 'keystone::mysql':
+  password      => $keystone_db_password,
+  dbname        => $keystone_db_name,
+  user          => $keystone_db_user,
+  host          => $keystone_db_host
+}
+
+class { 'keystone::api':
+  sql_connection => $keystone_sql_connection,
+  require => Class["keystone::mysql"]
+}
 
 class { 'nova::mysql':
   password      => $db_password,
   dbname        => $db_name,
   user          => $db_username,
-  host          => $clientcert,
-  # does glance need access?
-  allowed_hosts => ['localhost'],
+  host          => $db_host,
 }
 
 class { 'nova::controller':
@@ -100,6 +120,13 @@ class { 'nova::compute':
   aws_address    => '169.254.169.254',
 }
 
+class { 'glance::mysql':
+  password      => $glance_db_password,
+  dbname        => $glance_db_name,
+  user          => $glance_db_user,
+  host          => $glance_db_host,
+}
+
 class { 'glance::api':
   api_flavor => 'keystone+cachemanagement',
   require => Class["keystone"]
@@ -107,5 +134,6 @@ class { 'glance::api':
 
 class { 'glance::registry':
   registry_flavor => 'keystone',
-  require => Class["keystone"]
+  sql_connection => $glance_sql_connection,
+  require => [Class["keystone"], Class["glance::mysql"]]
 }

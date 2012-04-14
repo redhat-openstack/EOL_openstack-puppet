@@ -2,9 +2,7 @@ class nova::mysql(
   $password,
   $dbname = 'nova',
   $user = 'nova',
-  $host = '127.0.0.1',
-  $allowed_hosts = undef,
-  $cluster_id = 'localzone'
+  $host = '127.0.0.1'
 ) {
 
   # Create the db instance before openstack-nova if its installed
@@ -17,14 +15,6 @@ class nova::mysql(
     charset      => 'latin1',
     require      => Class['mysql::server'],
     notify       => Exec["initial-db-sync"],
-  }
-
-  if $allowed_hosts {
-     nova::mysql::host_access { $allowed_hosts:
-      user      => $user,
-      password  => $password,
-      database  => $dbname,
-    }
   }
 
 }

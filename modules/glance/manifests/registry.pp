@@ -27,13 +27,21 @@ class glance::registry(
     require => Class["glance"]
   }
 
+  exec { "glance-db-sync":
+    command     => "/usr/bin/glance-manage db_sync",
+    refreshonly => true,
+    user     => 'glance',
+    require     => Package["openstack-glance"]
+  }
+
   file { "/etc/glance/glance-registry.conf":
     ensure  => present,
     owner   => 'glance',
     group   => 'root',
     mode    => 640,
     content => template('glance/glance-registry.conf.erb'),
-    require => Class["glance"]
+    require => Class["glance"],
+    notify   => Exec['glance-db-sync'],
   }
 
   service { "openstack-glance-registry":
@@ -42,7 +50,7 @@ class glance::registry(
     hasstatus  => true,
     hasrestart => true,
     subscribe  => [File["/etc/glance/glance-registry.conf"], File["/etc/glance/glance-registry-paste.ini"]],
-    require    => Class["glance"]
+    require    => [Class["glance"], Exec['glance-db-sync']]
   }
 
 }
