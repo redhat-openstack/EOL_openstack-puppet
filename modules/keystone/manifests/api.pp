@@ -20,7 +20,7 @@ class keystone::api(
   $catalog_template_file = '/etc/keystone/default_catalog.templates',
   $token_driver = 'keystone.token.backends.kvs.Token',
   $expiration = '86400',
-  $policy_driver = 'keystone.policy.backends.simple.SimpleMatch',
+  $policy_driver = 'keystone.policy.backends.rules.Policy',
   $ec2_driver = 'keystone.contrib.ec2.backends.sql.Ec2',
   $ec2_host = 'localhost',
   $image_host = 'localhost',
