@@ -1,6 +1,6 @@
 # Default minimal pipeline
 [pipeline:glance-api]
-pipeline = versionnegotiation context rootapp
+pipeline = versionnegotiation unauthenticated-context rootapp
 
 # Use the following pipeline for keystone auth
 # i.e. in glance-api.conf:
@@ -25,14 +25,6 @@ pipeline = versionnegotiation context cache rootapp
 #
 [pipeline:glance-api-keystone+caching]
 pipeline = versionnegotiation authtoken context cache rootapp
-
-# Use the following pipeline to enable the Image Cache Management API
-# i.e. in glance-api.conf:
-#   [paste_deploy]
-#   flavor = cachemanagement
-#
-[pipeline:glance-api-cachemanagement]
-pipeline = versionnegotiation context cache cachemanage rootapp
 
 # Use the following pipeline for keystone auth with cache management
 # i.e. in glance-api.conf:
@@ -69,6 +61,10 @@ glance.filter_factory = glance.api.middleware.cache_manage:CacheManageFilter
 [filter:context]
 paste.filter_factory = glance.common.wsgi:filter_factory
 glance.filter_factory = glance.common.context:ContextMiddleware
+
+[filter:unauthenticated-context]
+paste.filter_factory = glance.common.wsgi:filter_factory
+glance.filter_factory = glance.common.context:UnauthenticatedContextMiddleware
 
 [filter:authtoken]
 paste.filter_factory = keystone.middleware.auth_token:filter_factory
