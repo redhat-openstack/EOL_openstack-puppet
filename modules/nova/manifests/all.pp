@@ -26,9 +26,6 @@ class nova::all(
   $glance_host = 'localhost',
   $glance_port = '9292',
 
-  $admin_user = 'novaadmin',
-  $project_name = 'nova',
-
   $verbose = undef
 ) {
 
@@ -85,15 +82,9 @@ class nova::all(
     host     => $db_host,
   }
 
-  nova::manage::admin { $admin_user: }
-  nova::manage::project { $project_name:
-    owner => $admin_user,
-  }
-
-  nova::manage::network { "${project_name}-net-${nova_network}":
+  nova::manage::network { "net-${nova_network}":
     network       => $nova_network,
-    available_ips => $available_ips,
-    require       => Nova::Manage::Project[$project_name],
+    available_ips => $available_ips
   }
 
   # set up glance server

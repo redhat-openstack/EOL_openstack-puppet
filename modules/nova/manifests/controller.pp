@@ -42,9 +42,6 @@ class nova::controller(
   $glance_host   = undef,
   $glance_port   = undef,
 
-  $admin_user = 'novaadmin',
-  $project_name = 'nova',
-
   $verbose = undef,
   $allow_resize_to_same_host = false,
   $libvirt_wait_soft_reboot_seconds = 120,
@@ -112,20 +109,13 @@ class nova::controller(
 
   class { "nova::scheduler": enabled => true }
 
-  nova::manage::admin { $admin_user: }
-  nova::manage::project { $project_name:
-    owner => $admin_user,
-  }
-
-  nova::manage::network { "${project_name}-net-${nova_network}":
+  nova::manage::network { "net-${nova_network}":
     network       => $nova_network,
-    available_ips => $available_ips,
-    require       => Nova::Manage::Project[$project_name],
+    available_ips => $available_ips
   }
 
-  nova::manage::floating { "${project_name}-floating-${floating_network}":
-    network       => $floating_network,
-    require       => Nova::Manage::Project[$project_name],
+  nova::manage::floating { "floating-${floating_network}":
+    network       => $floating_network
   }
 
 }
