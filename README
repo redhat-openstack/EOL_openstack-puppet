@@ -2,13 +2,11 @@ Puppet Labs OpenStack
 =====================
 
 A collection of modules to install a single Fedora node OpenStack server.
-The origional Ubuntu version lives here
-https://github.com/puppetlabs/puppetlabs-openstack
 
 Requirements
 ------------
 
-* Currently only works on Fedora 16
+* Tested on Fedora 16
 * Puppet 2.6.8 or later
 
 Installation
@@ -18,14 +16,14 @@ Installation
     $ sudo yum install puppet
 
 2. Download the Puppet OpenStack module
-    $ cd ~ && git clone --recurse git://github.com/derekhiggins/puppetlabs-openstack.git
+    $ cd ~ && git clone --recurse git://github.com/fedora-openstack/openstack-puppet.git
 
 3. Copy the modules into the Puppet modulepath
     $ sudo mkdir -p /etc/puppet/modules/
-    $ sudo cp -R ~/puppetlabs-openstack/modules/* /etc/puppet/modules/
+    $ sudo cp -R ~/openstack-puppet/modules/* /etc/puppet/modules/
 
 4. Run Puppet
-    $ sudo puppet apply --verbose ~/puppetlabs-openstack/manifests/fedora.pp
+    $ sudo puppet apply --verbose ~/openstack-puppet/manifests/fedora.pp
 
 Usage
 -----
