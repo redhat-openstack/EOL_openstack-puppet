@@ -22,8 +22,20 @@ catalog.RegionOne.ec2.adminURL = http://<%= ec2_host %>:8773/services/Admin
 catalog.RegionOne.ec2.internalURL = http://<%= ec2_host %>:8773/services/Cloud
 catalog.RegionOne.ec2.name = 'EC2 Service'
 
+# S3
+catalog.RegionOne.s3.publicURL = http://<%= s3_host %>:3333/services/Cloud
+catalog.RegionOne.s3.adminURL = http://<%= s3_host %>:3333/services/Admin
+catalog.RegionOne.s3.internalURL = http://<%= s3_host %>:3333/services/Cloud
+catalog.RegionOne.s3.name = 'S3 Service'
+
 # Storage
 catalog.RegionOne.object_store.publicURL = http://<%= storage_host %>:8080/v1/AUTH_$(tenant_id)s
 catalog.RegionOne.object_store.adminURL = http://<%= storage_host %>:8080/
 catalog.RegionOne.object_store.internalURL = http://<%= storage_host %>:8080/v1/AUTH_$(tenant_id)s
-catalog.RegionOne.object_store.name = 'Swift Service'
+catalog.RegionOne.object_store.name = 'Object Storage Service'
+
+#Volume
+catalog.RegionOne.volume.publicURL = http://<%= volume_host %>:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.adminURL = http://<%= volume_host %>:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.internalURL = http://<%= volume_host %>:8776/v1/$(tenant_id)s
+catalog.RegionOne.volume.name = 'Volume Service'
