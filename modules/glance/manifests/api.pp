@@ -20,6 +20,9 @@ class glance::api(
   $registry_client_ca_file = '',
   $notifier_strategy = 'noop',
 
+  $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
+  $sql_idle_timeout = '3600',
+
   $rabbit_host = 'localhost',
   $rabbit_port = '5672',
   $rabbit_use_ssl = 'False',

@@ -7,8 +7,6 @@ class glance::registry(
   $backlog = '4096',
   $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
   $sql_idle_timeout = '3600',
-  $sql_limit_max = '1000',
-  $sql_limit_default = '25',
   $use_syslog = 'False',
   $syslog_log_facility = 'LOG_LOCAL1',
   $api_limit_max = '1000',
