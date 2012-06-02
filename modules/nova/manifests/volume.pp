@@ -24,9 +24,9 @@ class nova::volume( $enabled=false ) {
     #subscribe => File["/etc/nova/nova.conf"]
   }
 
-#  service {'tgtd':
-#    ensure  => $service_ensure,
-#    enable  => $enabled,
-#    require => Package["openstack-nova"],
-#  }
+  service {'tgtd':
+    ensure  => $service_ensure,
+    enable  => $enabled,
+    require => Package["openstack-nova"],
+  }
 }
