@@ -11,7 +11,7 @@ define swift::storage::node(
   $owner = 'swift',
   $group  = 'swift',
   $max_connections = 25,
-  $storage_local_net_ip = '127.0.0.1',
+  $storage_local_net_ip = '0.0.0.0',
   $manage_ring = true
 ) {
 

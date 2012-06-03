@@ -6,8 +6,7 @@
 # [*account_autocreate*] Rather accounts should automatically be created.
 #  I think this may be tempauth specific
 # [*proxy_local_net_ip*] The address that the proxy will bind to.
-#   Optional. Defaults to 127.0.0.1
-#   TODO - this default is probably not ideal
+#   Optional. Defaults to 0.0.0.0
 # [*proxy_port*] Port that the swift proxy service will bind to.
 #   Optional. Defaults to 11211
 # [*auth_type*] - Type of authorization to use.
@@ -35,10 +34,9 @@
 # Copyright 2011 Puppetlabs Inc, unless otherwise noted.
 #
 class swift::proxy(
-  # why did cloudbuilders default this to false?
   $allow_account_management = true,
   $account_autocreate = false,
-  $proxy_local_net_ip = '127.0.0.1',
+  $proxy_local_net_ip = '0.0.0.0',
   $proxy_port = '11211',
   $auth_type = 'tempauth',
   $swauth_endpoint = '127.0.0.1',

@@ -9,7 +9,7 @@ define swift::storage::server(
   $owner = 'swift',
   $group  = 'swift',
   $max_connections = 25,
-  $storage_local_net_ip = '127.0.0.1',
+  $storage_local_net_ip = '0.0.0.0',
   # this parameters needs to be specified after type and name
   $config_file_path = "${type}-server/${name}.conf"
 ) {

@@ -7,8 +7,7 @@
 #    installs storeage packages (object,account,containers)
 # == Parameters
 #  [*storeage_local_net_ip*] ip address that the swift servers should
-#    bind to. Optional. Defaults to 127.0.0.1 .
-#    TODO - should this default to 0.0.0.0 ?
+#    bind to. Optional. Defaults to 0.0.0.0 .
 #  [*package_ensure*] The desired ensure state of the swift storage packages.
 #    Optional. Defaults to present.
 #  [*devices*] The path where the managed volumes can be found.
@@ -34,8 +33,7 @@
 #
 class swift::storage(
   $package_ensure = 'present',
-  # TODO - should this default to 0.0.0.0?
-  $storage_local_net_ip = '127.0.0.1',
+  $storage_local_net_ip = '0.0.0.0',
   $devices = '/srv/node',
   $object_port = '6000',
   $container_port = '6001',
