@@ -10,6 +10,14 @@ debug = <%= log_debug %>
 # Available choices are 'file', 'swift', and 's3'
 default_store = <%= default_store %>
 
+# List of which store classes and store class locations are
+# currently known to glance at startup.
+known_stores = glance.store.filesystem.Store,
+               glance.store.http.Store,
+               glance.store.rbd.Store,
+               glance.store.s3.Store,
+               glance.store.swift.Store,
+
 # Address to bind the API server
 bind_host = <%= bind_host %>
 
