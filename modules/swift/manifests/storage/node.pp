@@ -49,4 +49,20 @@ define swift::storage::node(
     device_name => $name,
     weight      => $weight,
   }
+
+  service{"openstack-swift-object@60${name}0":
+    ensure => running,
+    require => Swift::Storage::Server["60${name}0"]
+  }
+
+  service{"openstack-swift-container@60${name}1":
+    ensure => running,
+    require => Swift::Storage::Server["60${name}1"]
+  }
+
+  service{"openstack-swift-account@60${name}2":
+    ensure => running,
+    require => Swift::Storage::Server["60${name}2"]
+  }
+
 }
