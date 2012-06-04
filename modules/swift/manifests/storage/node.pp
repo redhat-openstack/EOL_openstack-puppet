@@ -52,17 +52,17 @@ define swift::storage::node(
 
   service{"openstack-swift-object@60${name}0":
     ensure => running,
-    require => Swift::Storage::Server["60${name}0"]
+    require => [Swift::Storage::Server["60${name}0"], File["/etc/swift/object-server/60${name}0.conf"]]
   }
 
   service{"openstack-swift-container@60${name}1":
     ensure => running,
-    require => Swift::Storage::Server["60${name}1"]
+    require => [Swift::Storage::Server["60${name}1"], File["/etc/swift/container-server/60${name}1.conf"]]
   }
 
   service{"openstack-swift-account@60${name}2":
     ensure => running,
-    require => Swift::Storage::Server["60${name}2"]
+    require => [Swift::Storage::Server["60${name}2"], File["/etc/swift/account-server/60${name}2.conf"]]
   }
 
 }
