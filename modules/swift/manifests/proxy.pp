@@ -37,6 +37,7 @@ class swift::proxy(
   $allow_account_management = true,
   $account_autocreate = false,
   $proxy_local_net_ip = '0.0.0.0',
+  $workers = 1,
   $proxy_port = '11211',
   $auth_type = 'tempauth',
   $swauth_endpoint = '127.0.0.1',
