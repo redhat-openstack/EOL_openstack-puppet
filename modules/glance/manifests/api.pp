@@ -50,6 +50,7 @@ class glance::api(
 
   $filesystem_store_datadir = '/var/lib/glance/images/',
 
+  $swift_store_auth_version = '1',
   $swift_store_auth_address = '127.0.0.1:8080/v1.0/',
   $swift_store_user = 'jdoe:jdoe',
   $swift_store_key = 'a86850deb2742ec3cb41518e26aa2d89',

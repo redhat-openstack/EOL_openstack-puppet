@@ -149,6 +149,10 @@ filesystem_store_datadir = <%= filesystem_store_datadir %>
 
 # ============ Swift Store Options =============================
 
+# Version of the authentication service to use
+# Valid versions are '2' for keystone and '1' for swauth and rackspace
+swift_store_auth_version = <%= swift_store_auth_version %>
+
 # Address where the Swift authentication service lives
 # Valid schemes are 'http://' and 'https://'
 # If no scheme specified,  default to 'https://'
