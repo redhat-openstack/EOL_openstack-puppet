@@ -11,6 +11,7 @@ define swift::storage::node(
   $owner = 'swift',
   $group  = 'swift',
   $max_connections = 25,
+  $workers = 1,
   $storage_local_net_ip = '0.0.0.0',
   $manage_ring = true
 ) {
@@ -52,17 +53,17 @@ define swift::storage::node(
 
   service{"openstack-swift-object@60${name}0":
     ensure => running,
-    require => [Swift::Storage::Server["60${name}0"], File["/etc/swift/object-server/60${name}0.conf"]]
+    require => [Swift::Storage::Server["60${name}0"], File["/etc/swift/object-server/60${name}0.conf"], Ring_object_device["${storage_local_net_ip}:60${name}0"]]
   }
 
   service{"openstack-swift-container@60${name}1":
     ensure => running,
-    require => [Swift::Storage::Server["60${name}1"], File["/etc/swift/container-server/60${name}1.conf"]]
+    require => [Swift::Storage::Server["60${name}1"], File["/etc/swift/container-server/60${name}1.conf"], Ring_container_device["${storage_local_net_ip}:60${name}1"]]
   }
 
   service{"openstack-swift-account@60${name}2":
     ensure => running,
-    require => [Swift::Storage::Server["60${name}2"], File["/etc/swift/account-server/60${name}2.conf"]]
+    require => [Swift::Storage::Server["60${name}2"], File["/etc/swift/account-server/60${name}2.conf"], Ring_account_device["${storage_local_net_ip}:60${name}2"]]
   }
 
 }
