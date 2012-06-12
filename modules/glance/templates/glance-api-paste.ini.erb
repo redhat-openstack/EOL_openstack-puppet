@@ -16,7 +16,7 @@ pipeline = versionnegotiation authtoken context rootapp
 #   flavor = caching
 #
 [pipeline:glance-api-caching]
-pipeline = versionnegotiation context cache rootapp
+pipeline = versionnegotiation unauthenticated-context cache rootapp
 
 # Use the following pipeline for keystone auth with caching
 # i.e. in glance-api.conf:
@@ -38,39 +38,34 @@ pipeline = versionnegotiation authtoken context cache cachemanage rootapp
 use = egg:Paste#urlmap
 /: apiversions
 /v1: apiv1app
+/v2: apiv2app
 
 [app:apiversions]
 paste.app_factory = glance.api.versions:create_resource
 
 [app:apiv1app]
-paste.app_factory = glance.common.wsgi:app_factory
-glance.app_factory = glance.api.v1.router:API
+paste.app_factory = glance.api.v1.router:API.factory
+
+[app:apiv2app]
+paste.app_factory = glance.api.v2.router:API.factory
 
 [filter:versionnegotiation]
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.api.middleware.version_negotiation:VersionNegotiationFilter
+paste.filter_factory = glance.api.middleware.version_negotiation:VersionNegotiationFilter.factory
 
 [filter:cache]
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.api.middleware.cache:CacheFilter
+paste.filter_factory = glance.api.middleware.cache:CacheFilter.factory
 
 [filter:cachemanage]
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.api.middleware.cache_manage:CacheManageFilter
+paste.filter_factory = glance.api.middleware.cache_manage:CacheManageFilter.factory
 
 [filter:context]
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.common.context:ContextMiddleware
+paste.filter_factory = glance.common.context:ContextMiddleware.factory
 
 [filter:unauthenticated-context]
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.common.context:UnauthenticatedContextMiddleware
+paste.filter_factory = glance.common.context:UnauthenticatedContextMiddleware.factory
 
 [filter:authtoken]
 paste.filter_factory = keystone.middleware.auth_token:filter_factory
-service_protocol = <%= keystone_service_protocol %>
-service_host = <%= keystone_service_host %>
-service_port = <%= keystone_service_port %>
 auth_host = <%= keystone_auth_host %>
 auth_port = <%= keystone_auth_port %>
 auth_protocol = <%= keystone_auth_protocol %>

@@ -11,6 +11,7 @@ class glance::registry(
   $syslog_log_facility = 'LOG_LOCAL1',
   $api_limit_max = '1000',
   $limit_param_default = '25',
+  $admin_role = 'admin',
   $cert_file = '',
   $key_file = '',
   $registry_flavor = ''

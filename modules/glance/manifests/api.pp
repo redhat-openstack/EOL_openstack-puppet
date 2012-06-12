@@ -7,6 +7,8 @@ class glance::api(
   $log_file = '/var/log/glance/api.log',
   $backlog = '4096',
   $workers = '0',
+  $admin_role = 'admin',
+  $allow_anonymous_access = 'False',
   $use_syslog = 'False',
   $syslog_log_facility = 'LOG_LOCAL0',
   $cert_file = '',

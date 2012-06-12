@@ -1,8 +1,5 @@
 class glance(
   $package_ensure = 'present',
-  $keystone_service_protocol = 'http',
-  $keystone_service_host = '127.0.0.1',
-  $keystone_service_port = '5000',
   $keystone_auth_host = '127.0.0.1',
   $keystone_auth_port = '35357',
   $keystone_auth_protocol = 'http',
