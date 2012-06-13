@@ -46,6 +46,7 @@ class nova::controller(
   $allow_resize_to_same_host = false,
   $libvirt_wait_soft_reboot_seconds = 120,
   $scheduler_default_filters = 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
+  $disable_process_locking = false,
   $keystone_enabled = false
 ) {
 
@@ -81,6 +82,7 @@ class nova::controller(
     libvirt_type => $libvirt_type,
     scheduler_default_filters => $scheduler_default_filters,
     allow_resize_to_same_host => $allow_resize_to_same_host,
+    disable_process_locking => $disable_process_locking,
     libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds
 
   }
