@@ -45,6 +45,9 @@ sql_connection = <%= sql_connection %>
 # before MySQL can drop the connection.
 sql_idle_timeout = <%= sql_idle_timeout %>
 
+# Auto create the database when the service starts.
+db_auto_create = <%= db_auto_create %>
+
 # Number of Glance API worker processes to start.
 # On machines with more than one CPU increasing this value
 # may improve performance (especially if using SSL with

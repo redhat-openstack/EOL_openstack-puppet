@@ -24,6 +24,7 @@ class glance::api(
 
   $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
   $sql_idle_timeout = '3600',
+  $db_auto_create = 'False',
 
   $rabbit_host = 'localhost',
   $rabbit_port = '5672',
