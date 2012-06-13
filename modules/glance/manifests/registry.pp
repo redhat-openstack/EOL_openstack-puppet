@@ -1,5 +1,5 @@
 class glance::registry(
-  $log_verbose = 'False',
+  $log_verbose = 'True',
   $log_debug = 'False',
   $bind_host = '0.0.0.0',
   $bind_port = '9191',
