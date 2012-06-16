@@ -13,7 +13,7 @@ class postgresql::server(
   }
 
   exec { "initdb":
-    command     => "/sbin/service postgresql initdb",
+    command     => "/bin/postgresql-setup initdb",
     creates => "${data_dir}/PG_VERSION",
     require => Package[$package_name]
   }
