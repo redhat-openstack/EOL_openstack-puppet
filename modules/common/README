@@ -1,0 +1,8 @@
+# Qpid Puppet Module
+Dan Prince <dprince@redhat.com>
+
+This provides some common config files settings for Puppet w/ Openstack.
+
+example:
+
+class { 'common::config' }

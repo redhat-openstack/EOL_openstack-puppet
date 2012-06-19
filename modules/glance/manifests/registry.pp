@@ -18,13 +18,32 @@ class glance::registry(
   $registry_flavor = ''
 ) inherits glance {
 
-  file { "/etc/glance/glance-registry-paste.ini":
-    ensure  => present,
-    owner   => 'glance',
-    group   => 'root',
-    mode    => 640,
-    content => template('glance/glance-registry-paste.ini.erb'),
-    require => Class["glance"]
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/auth_host":
+    value => "$keystone_auth_host"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/auth_port":
+    value => "$keystone_auth_port"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/auth_protocol":
+    value => "$keystone_auth_protocol"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/auth_uri":
+    value => "$keystone_auth_uri"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/admin_user":
+    value => "$keystone_admin_user"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/admin_password":
+    value => "$keystone_admin_password"
+  }
+
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/admin_tenant_name":
+    value => "$keystone_admin_tenant_name"
   }
 
   exec { "glance-db-sync":
@@ -49,7 +68,15 @@ class glance::registry(
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => [File["/etc/glance/glance-registry.conf"], File["/etc/glance/glance-registry-paste.ini"]],
+    subscribe  => [File["/etc/glance/glance-registry.conf"], 
+                   Augeas['glance-registry-paste.ini/filter:authtoken/auth_host'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/auth_port'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/auth_protocol'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/auth_uri'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/admin_user'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/admin_password'],
+                   Augeas['glance-registry-paste.ini/filter:authtoken/admin_tenant_name']
+                  ],
     require    => [Class["glance"], Exec['glance-db-sync']]
   }
 

@@ -77,16 +77,35 @@ class glance::api(
   $scrub_time = '43200',
   $scrubber_datadir = '/var/lib/glance/scrubber',
   $image_cache_dir = '/var/lib/glance/image-cache/',
-  $api_flavor = ''
+  $api_flavor = '',
 ) inherits glance {
 
-  file { "/etc/glance/glance-api-paste.ini":
-    ensure  => present,
-    owner   => 'glance',
-    group   => 'root',
-    mode    => 640,
-    content => template('glance/glance-api-paste.ini.erb'),
-    require => Class["glance"]
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_host":
+    value => "$keystone_auth_host"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_port":
+    value => "$keystone_auth_port"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_protocol":
+    value => "$keystone_auth_protocol"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_uri":
+    value => "$keystone_auth_uri"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_user":
+    value => "$keystone_admin_user"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_password":
+    value => "$keystone_admin_password"
+  }
+
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_tenant_name":
+    value => "$keystone_admin_tenant_name"
   }
 
   file { "/etc/glance/glance-api.conf":
@@ -103,7 +122,15 @@ class glance::api(
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => [File["/etc/glance/glance-api.conf"], File["/etc/glance/glance-api-paste.ini"]],
+    subscribe  => [File["/etc/glance/glance-api.conf"],
+                   Augeas['glance-api-paste.ini/filter:authtoken/auth_host'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/auth_port'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/auth_protocol'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/auth_uri'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/admin_user'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/admin_password'],
+                   Augeas['glance-api-paste.ini/filter:authtoken/admin_tenant_name']
+                  ],
     require    => Class["glance"]
   }
 
