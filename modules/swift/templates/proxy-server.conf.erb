@@ -21,7 +21,11 @@ user = swift
 # log_statsd_metric_prefix =
 
 [pipeline:main]
+<% if auth_type == 'keystone' %>
+pipeline = catch_errors healthcheck cache ratelimit s3token authtoken keystone proxy-logging proxy-server
+<% else %>
 pipeline = catch_errors healthcheck cache ratelimit tempauth proxy-logging proxy-server
+<% end %>
 
 [app:proxy-server]
 use = egg:swift#proxy
@@ -250,3 +254,26 @@ use = egg:swift#name_check
 
 [filter:proxy-logging]
 use = egg:swift#proxy_logging
+
+[filter:keystone]
+paste.filter_factory = keystone.middleware.swift_auth:filter_factory
+operator_roles = Member,admin
+
+[filter:s3token]
+paste.filter_factory = keystone.middleware.s3_token:filter_factory
+auth_host = <%= keystone_auth_host %>
+auth_port = <%= keystone_auth_port %>
+auth_protocol = <%= keystone_auth_protocol %>
+admin_user = <%= keystone_admin_user %>
+admin_password = <%= keystone_admin_password %>
+admin_tenant_name = <%= keystone_admin_tenant_name %>
+
+[filter:authtoken]
+paste.filter_factory = keystone.middleware.auth_token:filter_factory
+auth_host = <%= keystone_auth_host %>
+auth_port = <%= keystone_auth_port %>
+auth_protocol = <%= keystone_auth_protocol %>
+auth_uri = <%= keystone_auth_uri %>
+admin_user = <%= keystone_admin_user %>
+admin_password = <%= keystone_admin_password %>
+admin_tenant_name = <%= keystone_admin_tenant_name %>

@@ -42,16 +42,19 @@ class swift::proxy(
   $auth_type = 'tempauth',
   $swauth_endpoint = '127.0.0.1',
   $swauth_super_admin_key = 'swauthkey',
-  $package_ensure = 'present'
+  $package_ensure = 'present',
+  $keystone_auth_host = '127.0.0.1',
+  $keystone_auth_port = '35357',
+  $keystone_auth_protocol = 'http',
+  $keystone_auth_uri = 'http://127.0.0.1:5000/',
+  $keystone_admin_user = 'swift',
+  $keystone_admin_password = 'SERVICE_PASSWORD',
+  $keystone_admin_tenant_name = 'service'
 ) inherits swift {
 
   Class['memcached'] -> Class['swift::proxy']
 
   validate_re($auth_type, 'tempauth|swauth|keystone')
-
-  if(auth_type == 'keystone') {
-    fail('Keystone is currently not supported, it should be supported soon :)')
-  }
 
   package { 'openstack-swift-proxy':
     ensure => $package_ensure,
