@@ -22,10 +22,10 @@ class mysql::server(
 
   # automatically create a class to deal with
   # configuration
-  $hash = {
-    "mysql::config" => $config_hash
-  }
-  create_resources("class", $hash)
+  #$hash = {
+  #  "mysql::config" => $config_hash
+  #}
+  #create_resources("class", $hash)
 
   package{'mysql-server':
     name   => $package_name,
