@@ -257,7 +257,8 @@ use = egg:swift#proxy_logging
 
 [filter:keystone]
 paste.filter_factory = keystone.middleware.swift_auth:filter_factory
-operator_roles = Member,admin
+operator_roles = admin
+is_admin = True
 
 [filter:s3token]
 paste.filter_factory = keystone.middleware.s3_token:filter_factory
