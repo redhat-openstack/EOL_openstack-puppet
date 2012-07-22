@@ -8,7 +8,7 @@ Puppet::Type.type(:nova_network).provide(:nova_manage) do
 
   def exists?
     begin
-      nova_manage("network", "list").match(/^#{resource[:network]}\/[0-9]{1,2} /)
+      return false if not nova_manage("network", "list").match(/.*#{resource[:network]}.*/)
     rescue
       return false
     end
