@@ -155,6 +155,7 @@ class nova(
     nova_config {
       'dhcpbridge': value => "/usr/bin/nova-dhcpbridge";
       'dhcpbridge_flagfile': value => "/etc/nova/nova.conf";
+      'flat_network_bridge': value => $flat_network_bridge;
     }
   }
 

@@ -83,7 +83,8 @@ class nova::controller(
     scheduler_default_filters => $scheduler_default_filters,
     allow_resize_to_same_host => $allow_resize_to_same_host,
     disable_process_locking => $disable_process_locking,
-    libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds
+    libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds,
+    flat_network_bridge => $flat_network_bridge
 
   }
 
