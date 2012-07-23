@@ -9,6 +9,12 @@ class nova(
   $glance_port = '9292',
   $allow_admin_api = false,
 
+  $compute_driver = 'libvirt.LibvirtDriver',
+  $xenapi_connection_url = 'http://localhost',
+  $xenapi_connection_username = 'username',
+  $xenapi_connection_password = 'password',
+  $xenapi_inject_image = false,
+
   $rpc_backend = 'nova.rpc.impl_kombu',
 
   $rabbit_host = 'localhost',
@@ -130,7 +136,7 @@ class nova(
     'root_helper': value => 'sudo nova-rootwrap /etc/nova/rootwrap.conf';
     'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
     'public_interface': value => 'eth0';
-    'connection_type': value => 'libvirt';
+    'compute_driver': value => $compute_driver;
     'auth_strategy': value => $auth_strategy;
     'scheduler_default_filters': value => $scheduler_default_filters;
     'allow_resize_to_same_host': value => $allow_resize_to_same_host;
@@ -143,6 +149,15 @@ class nova(
   exec { 'post-nova_config':
     command => '/bin/echo "Nova config has changed"',
     refreshonly => true,
+  }
+
+  if $compute_driver == 'xenapi.XenAPIDriver' {
+    nova_config {
+      'xenapi_connection_url': value => $xenapi_connection_url;
+      'xenapi_connection_username': value => $xenapi_connection_username;
+      'xenapi_connection_password': value => $xenapi_connection_password;
+      'xenapi_inject_image': value => $xenapi_inject_image;
+    }
   }
 
   if $network_manager == 'nova.network.manager.FlatManager' {

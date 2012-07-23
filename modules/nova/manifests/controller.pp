@@ -5,6 +5,12 @@ class nova::controller(
   $db_user = 'nova',
   $db_host = 'localhost',
 
+  $compute_driver = 'libvirt.LibvirtDriver',
+  $xenapi_connection_url = 'http://localhost',
+  $xenapi_connection_username = 'username',
+  $xenapi_connection_password = 'password',
+  $xenapi_inject_image = false,
+
   $rpc_backend = 'nova.rpc.impl_kombu',
 
   $rabbit_port = undef,
@@ -33,6 +39,7 @@ class nova::controller(
   $flat_network_bridge_ip  = '11.0.0.1',
   $flat_network_bridge_netmask  = '255.255.255.0',
 
+  $network_manager = 'nova.network.manager.FlatDHCPManager',
   $nova_network = '11.0.0.0/24',
   $floating_network = '10.128.0.0/24',
   $available_ips = '256',
@@ -77,8 +84,13 @@ class nova::controller(
     qpid_heartbeat => $qpid_heartbeat,
     qpid_protocol => $qpid_protocol,
     qpid_tcp_nodelay => $qpid_tcp_nodelay,
+    compute_driver => $compute_driver,
+    xenapi_connection_url => $xenapi_connection_url,
+    xenapi_connection_username => $xenapi_connection_username,
+    xenapi_connection_password => $xenapi_connection_password,
+    xenapi_inject_image => $xenapi_inject_image,
     lock_path => '/var/lib/nova/tmp',
-    network_manager => 'nova.network.manager.FlatDHCPManager',
+    network_manager => $network_manager,
     libvirt_type => $libvirt_type,
     scheduler_default_filters => $scheduler_default_filters,
     allow_resize_to_same_host => $allow_resize_to_same_host,

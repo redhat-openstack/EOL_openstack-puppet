@@ -1,20 +1,12 @@
-class nova::compute::xenserver(
-  $xenapi_connection_url,
-  $xenapi_connection_username,
-  $xenapi_connection_password,
-  $xenapi_inject_image=false
-) {
+class nova::compute::xenserver {
 
-  nova_config {
-    'connection_type': value => 'xenapi';
-    'xenapi_connection_url': value => $xenapi_connection_url;
-    'xenapi_connection_username': value => $xenapi_connection_username;
-    'xenapi_connection_password': value => $xenapi_connection_password;
-    'xenapi_inject_image': value => $xenapi_inject_image;
+  package { 'python-pip':
+    ensure   => installed
+  }
+ 
+  exec { '/usr/bin/pip-python install xenapi':
+    onlyif => '/bin/python -c "import XenAPI" || exit 0',
+    require => Package['python-pip']
   }
 
-  package { 'xenapi':
-    ensure   => installed,
-    provider => pip
-  }
 }
