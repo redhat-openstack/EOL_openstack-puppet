@@ -97,6 +97,7 @@ class nova::controller(
     allow_resize_to_same_host => $allow_resize_to_same_host,
     disable_process_locking => $disable_process_locking,
     libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds,
+    firewall_driver => $firewall_driver,
     flat_network_bridge => $flat_network_bridge
 
   }
