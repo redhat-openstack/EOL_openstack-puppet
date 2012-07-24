@@ -53,6 +53,7 @@ class nova(
   $allow_resize_to_same_host = false,
   $libvirt_wait_soft_reboot_seconds = 120,
   $disable_process_locking = false,
+  $firewall_driver = 'nova.virt.firewall.IptablesFirewallDriver',
   $s3_host = 'localhost',
   $s3_port = 3333
 
@@ -141,6 +142,7 @@ class nova(
     'scheduler_default_filters': value => $scheduler_default_filters;
     'allow_resize_to_same_host': value => $allow_resize_to_same_host;
     'libvirt_wait_soft_reboot_seconds': value => $libvirt_wait_soft_reboot_seconds;
+    'firewall_driver': value => $firewall_driver;
     'disable_process_locking': value => $disable_process_locking;
     's3_host': value => $s3_host;
     's3_port': value => $s3_port;
