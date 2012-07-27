@@ -16,7 +16,7 @@ Installation
     $ sudo yum install puppet
 
 2. Download the Puppet OpenStack module
-    $ cd ~ && git clone --recurse git://github.com/fedora-openstack/openstack-puppet.git
+    $ cd ~ && git clone --recursive git://github.com/fedora-openstack/openstack-puppet.git
 
 3. Copy the modules into the Puppet modulepath
     $ sudo mkdir -p /etc/puppet/modules/
