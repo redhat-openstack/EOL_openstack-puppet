@@ -13,7 +13,7 @@ let eol     = Util.eol
 (************************************************************************
  *                        ENTRY
  *************************************************************************)
-let url_entry    = /\/[\/A-Za-z0-9.-_]* ?[:|=] [A-Za-z0-9.-_]+/
+let url_entry    = /\/[\/A-Za-z0-9._-]* ?[:|=] [A-Za-z0-9._-]+/
 let no_inline_comment_entry (kw:regexp) (sep:lens) (comment:lens)
                        = [ key kw . sep . IniFile.sto_to_eol? . eol ]
                          | comment
