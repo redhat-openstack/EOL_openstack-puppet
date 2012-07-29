@@ -1,7 +1,7 @@
 define glance::paste_config(
   $context = '',
   $value = '',
-  $basecontext = '/files/etc/glance/',
+  $basecontext = '/files/etc/glance/'
 ) {
 
   include 'common::config'

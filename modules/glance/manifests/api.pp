@@ -77,7 +77,7 @@ class glance::api(
   $scrub_time = '43200',
   $scrubber_datadir = '/var/lib/glance/scrubber',
   $image_cache_dir = '/var/lib/glance/image-cache/',
-  $api_flavor = '',
+  $api_flavor = ''
 ) inherits glance {
 
   glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_host":
