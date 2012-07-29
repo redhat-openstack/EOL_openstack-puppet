@@ -1,7 +1,7 @@
 define nova::paste_config(
   $context = '',
   $value = '',
-  $basecontext = '/files/etc/nova/',
+  $basecontext = '/files/etc/nova/'
 ) {
 
   include 'common::config'
