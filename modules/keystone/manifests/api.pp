@@ -1,7 +1,7 @@
 class keystone::api(
   $package_ensure = 'present',
   $log_file = '/var/log/keystone/keystone.log',
-  $log_verbose = 'False',
+  $log_verbose = 'True',
   $log_debug = 'False',
   $bind_host = '0.0.0.0',
   $public_port = '5000',
