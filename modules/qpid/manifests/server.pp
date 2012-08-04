@@ -4,7 +4,9 @@
 class qpid::server(
   $config_file = '/etc/qpidd.conf',
   $package_name = 'qpid-cpp-server',
+  $package_ensure = present,
   $service_name = 'qpidd',
+  $service_ensure = running,
   $port = '5672',
   $max_connections = '500',
   $worker_threads = '17',
@@ -22,7 +24,7 @@ class qpid::server(
   validate_re($auth, '^(yes$|no$)')
 
   package { $package_name:
-    ensure => present
+    ensure => $package_ensure
   }
  
   file { $config_file:
@@ -45,7 +47,7 @@ class qpid::server(
   }
 
   service { $service_name:
-    ensure => running,
+    ensure => $service_ensure,
     subscribe => [Package[$package_name], File[$config_file]]
   }
 
