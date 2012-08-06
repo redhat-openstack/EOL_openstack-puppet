@@ -12,9 +12,6 @@ class keystone::api(
   $syslog_facility = 'LOG_LOCAL0',
   $sql_connection = 'sqlite:////var/lib/keystone/keystone.sqlite',
   $sql_idle_timeout = '200',
-  $sql_min_pool_size = '5',
-  $sql_max_pool_size = '10',
-  $sql_pool_timeout = '200',
   $identity_driver = 'keystone.identity.backends.sql.Identity',
   $catalog_driver = 'keystone.catalog.backends.templated.TemplatedCatalog',
   $catalog_template_file = '/etc/keystone/default_catalog.templates',
@@ -27,7 +24,19 @@ class keystone::api(
   $volume_host = 'localhost',
   $image_host = 'localhost',
   $storage_host = 'localhost',
-  $compute_host = 'localhost'
+  $compute_host = 'localhost',
+  $ssl_enable = undef,
+  $ssl_certfile = '/etc/keystone/ssl/certs/keystone.pem',
+  $ssl_keyfile = '/etc/keystone/ssl/private/keystonekey.pem',
+  $ssl_ca_certs = '/etc/keystone/ssl/certs/ca.pem',
+  $ssl_cert_required = True,
+  $signing_enable = undef,
+  $signing_certfile = '/etc/keystone/ssl/certs/signing_cert.pem',
+  $signing_keyfile = '/etc/keystone/ssl/private/signing_key.pem',
+  $signing_ca_certs = '/etc/keystone/ssl/certs/ca.pem',
+  $signing_key_size = '2048',
+  $signing_valid_days = '3650',
+  $signing_ca_password = undef
 ) {
 
   package { 'openstack-keystone': ensure => $package_ensure }
@@ -40,13 +49,21 @@ class keystone::api(
     require     => Package["openstack-keystone"]
   }
 
+  file { "/etc/keystone/ssl/":
+    ensure  => directory,
+    owner   => 'keystone',
+    group   => 'root',
+    mode    => 750,
+    require => Package['openstack-keystone']
+  }
+
   file { "/etc/keystone/keystone.conf":
     ensure  => present,
     owner   => 'keystone',
     group   => 'root',
     mode    => 640,
     content => template('keystone/keystone.conf.erb'),
-    require => Package['openstack-keystone'],
+    require => [Package['openstack-keystone'], File['/etc/keystone/ssl/']],
     notify        => Exec["keystone-db-sync"]
   }
 

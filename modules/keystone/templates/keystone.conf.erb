@@ -1,28 +1,58 @@
 [DEFAULT]
-bind_host = <%= bind_host %>
-public_port = <%= public_port %>
-admin_port = <%= admin_port %>
+# A "shared secret" between keystone and other openstack services
 admin_token = <%= admin_token %>
-compute_port = <%= compute_port %>
-verbose = <%= log_verbose %>
-debug = <%= log_debug %>
-log_file = <%= log_file %>
-#log_config = /etc/keystone/logging.conf
 
-# ================= Syslog Options ============================
-# Send logs to syslog (/dev/log) instead of to file specified
-# by `log-file`
+# The IP address of the network interface to listen on
+bind_host = <%= bind_host %>
+
+# The port number which the public service listens on
+public_port = <%= public_port %>
+
+# The port number which the public admin listens on
+admin_port = <%= admin_port %>
+
+# The port number which the OpenStack Compute service listens on
+compute_port = <%= compute_port %>
+
+# === Logging Options ===
+# Print debugging output
+verbose = <%= log_verbose %>
+
+# Print more verbose output
+# (includes plaintext request logging, potentially including passwords)
+debug = <%= log_debug %>
+
+# The directory to keep log files in (will be prepended to --logfile)
+log_file = <%= log_file %>
+
+# Use syslog for logging.
 use_syslog = <%= use_syslog %>
 
-# Facility to use. If unset defaults to LOG_USER.
+# syslog facility to receive log lines
 syslog_log_facility = <%= syslog_facility %>
+
+# If this option is specified, the logging configuration file specified is
+# used and overrides any other logging options specified. Please see the
+# Python logging module documentation for details on logging configuration
+# files.
+# log_config = /etc/keystone/logging.conf
+
+# A logging.Formatter log message format string which may use any of the
+# available logging.LogRecord attributes.
+# log_format = %(asctime)s %(levelname)8s [%(name)s] %(message)s
+
+# Format string for %(asctime)s in log records.
+# log_date_format = %Y-%m-%d %H:%M:%S
+
+# onready allows you to send a notification when the process is ready to serve
+# For example, to have it notify using systemd, one could set shell command:
+# onready = systemd-notify --ready
+# or a module with notify() method:
+# onready = keystone.common.systemd
 
 [sql]
 connection = <%= sql_connection %>
 idle_timeout = <%= sql_idle_timeout %>
-min_pool_size = <%= sql_min_pool_size %>
-max_pool_size = <%= sql_max_pool_size %>
-pool_timeout = <%= sql_pool_timeout %>
 
 [identity]
 driver = <%= identity_driver %>
@@ -43,6 +73,50 @@ driver = <%= policy_driver %>
 [ec2]
 driver = <%= ec2_driver %>
 
+[ssl]
+<% if @ssl_enable %>
+enable = True
+certfile = <%= ssl_certfile %>
+keyfile = <%= ssl_keyfile %>
+ca_certs = <%= ssl_ca_certs %>
+cert_required = <%= ssl_cert_required %>
+<% end %>
+
+[signing]
+<% if @signing_enable %>
+disable_pki=False
+certfile = /etc/keystone/ssl/certs/signing_cert.pem
+keyfile = /etc/keystone/ssl/private/signing_key.pem
+ca_certs = /etc/keystone/ssl/certs/ca.pem
+key_size = 2048
+valid_days = 3650
+<% if @signing_ca_password %>
+ca_password = <%= signing_ca_password %>
+<% end %>
+
+<% end %>
+
+[ldap]
+# url = ldap://localhost
+# user = dc=Manager,dc=example,dc=com
+# password = None
+# suffix = cn=example,cn=com
+# use_dumb_member = False
+
+# user_tree_dn = ou=Users,dc=example,dc=com
+# user_objectclass = inetOrgPerson
+# user_id_attribute = cn
+
+# tenant_tree_dn = ou=Groups,dc=example,dc=com
+# tenant_objectclass = groupOfNames
+# tenant_id_attribute = cn
+# tenant_member_attribute = member
+
+# role_tree_dn = ou=Roles,dc=example,dc=com
+# role_objectclass = organizationalRole
+# role_id_attribute = cn
+# role_member_attribute = roleOccupant
+
 [filter:debug]
 paste.filter_factory = keystone.common.wsgi:Debug.factory
 
@@ -58,11 +132,26 @@ paste.filter_factory = keystone.middleware:XmlBodyMiddleware.factory
 [filter:json_body]
 paste.filter_factory = keystone.middleware:JsonBodyMiddleware.factory
 
+[filter:user_crud_extension]
+paste.filter_factory = keystone.contrib.user_crud:CrudExtension.factory
+
 [filter:crud_extension]
 paste.filter_factory = keystone.contrib.admin_crud:CrudExtension.factory
 
 [filter:ec2_extension]
 paste.filter_factory = keystone.contrib.ec2:Ec2Extension.factory
+
+[filter:s3_extension]
+paste.filter_factory = keystone.contrib.s3:S3Extension.factory
+
+[filter:url_normalize]
+paste.filter_factory = keystone.middleware:NormalizingFilter.factory
+
+[filter:stats_monitoring]
+paste.filter_factory = keystone.contrib.stats:StatsMiddleware.factory
+
+[filter:stats_reporting]
+paste.filter_factory = keystone.contrib.stats:StatsExtension.factory
 
 [app:public_service]
 paste.app_factory = keystone.service:public_app_factory
@@ -71,10 +160,10 @@ paste.app_factory = keystone.service:public_app_factory
 paste.app_factory = keystone.service:admin_app_factory
 
 [pipeline:public_api]
-pipeline = token_auth admin_token_auth xml_body json_body debug ec2_extension public_service
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
 
 [pipeline:admin_api]
-pipeline = token_auth admin_token_auth xml_body json_body debug ec2_extension crud_extension admin_service
+pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
 
 [app:public_version_service]
 paste.app_factory = keystone.service:public_version_app_factory
@@ -83,10 +172,10 @@ paste.app_factory = keystone.service:public_version_app_factory
 paste.app_factory = keystone.service:admin_version_app_factory
 
 [pipeline:public_version_api]
-pipeline = xml_body public_version_service
+pipeline = stats_monitoring url_normalize xml_body public_version_service
 
 [pipeline:admin_version_api]
-pipeline = xml_body admin_version_service
+pipeline = stats_monitoring url_normalize xml_body admin_version_service
 
 [composite:main]
 use = egg:Paste#urlmap
