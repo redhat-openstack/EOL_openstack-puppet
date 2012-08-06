@@ -49,7 +49,8 @@ class swift::proxy(
   $keystone_auth_uri = 'http://127.0.0.1:5000/',
   $keystone_admin_user = 'swift',
   $keystone_admin_password = 'SERVICE_PASSWORD',
-  $keystone_admin_tenant_name = 'service'
+  $keystone_admin_tenant_name = 'service',
+  $keystone_signing_dir = '/var/lib/swift/keystone-signing'
 ) inherits swift {
 
   Class['memcached'] -> Class['swift::proxy']
@@ -74,6 +75,14 @@ class swift::proxy(
     mode    => 0660,
     content => template('swift/proxy-server.conf.erb'),
     require => Package['openstack-swift-proxy'],
+  }
+
+  file { $keystone_signing_dir:
+    ensure  => directory,
+    owner   => 'swift',
+    group   => 'swift',
+    mode    => 770,
+    require => Package['openstack-swift-proxy']
   }
 
   service { 'openstack-swift-proxy':
