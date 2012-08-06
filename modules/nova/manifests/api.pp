@@ -57,8 +57,8 @@ class nova::api(
   file { $keystone_signing_dir:
     ensure  => directory,
     mode    => '750',
-    owner   => 'keystone',
-    group   => 'keystone',
+    owner   => 'nova',
+    group   => 'nova',
     require => Package['openstack-keystone'],
   }
 
