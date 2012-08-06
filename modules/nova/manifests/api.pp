@@ -7,7 +7,8 @@ class nova::api(
   $keystone_auth_uri = 'http://127.0.0.1:5000/',
   $keystone_admin_user = 'nova',
   $keystone_admin_password = 'SERVICE_PASSWORD',
-  $keystone_admin_tenant_name = 'service'
+  $keystone_admin_tenant_name = 'service',
+  $keystone_signing_dir = '/var/lib/nova/keystone-signing'
 ) {
 
   Exec['post-nova_config'] ~> Service['nova-api']
@@ -51,6 +52,18 @@ class nova::api(
 
   nova::paste_config { "api-paste.ini/filter:authtoken/admin_tenant_name":
     value => "$keystone_admin_tenant_name"
+  }
+
+  file { $keystone_signing_dir:
+    ensure  => directory,
+    mode    => '750',
+    owner   => 'keystone',
+    group   => 'keystone',
+    require => Package['openstack-keystone'],
+  }
+
+  nova::paste_config { "api-paste.ini/filter:authtoken/signing_dir":
+    value => "$keystone_signing_dir"
   }
 
   service { "nova-api":

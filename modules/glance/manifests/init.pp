@@ -7,15 +7,23 @@ class glance(
   $keystone_admin_user = 'glance',
   $keystone_admin_password = 'SERVICE_PASSWORD',
   $keystone_admin_tenant_name = 'service',
+  $keystone_signing_dir = '/var/lib/glance/keystone-signing',
   $api_flavor = '',
   $registry_flavor = ''
 ) {
-
 
   file { '/etc/glance/':
     ensure  => directory,
     owner   => 'glance',
     group   => 'root',
+    mode    => 770,
+    require => Package['openstack-glance']
+  }
+
+  file { $keystone_signing_dir:
+    ensure  => directory,
+    owner   => 'glance',
+    group   => 'glance',
     mode    => 770,
     require => Package['openstack-glance']
   }

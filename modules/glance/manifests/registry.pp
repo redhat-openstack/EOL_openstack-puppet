@@ -46,6 +46,10 @@ class glance::registry(
     value => "$keystone_admin_tenant_name"
   }
 
+  glance::paste_config { "glance-registry-paste.ini/filter:authtoken/signing_dir":
+    value => "$keystone_signing_dir"
+  }
+
   exec { "glance-db-sync":
     command     => "/usr/bin/glance-manage db_sync",
     refreshonly => true,

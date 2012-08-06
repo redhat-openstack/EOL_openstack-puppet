@@ -108,6 +108,10 @@ class glance::api(
     value => "$keystone_admin_tenant_name"
   }
 
+  glance::paste_config { "glance-api-paste.ini/filter:authtoken/signing_dir":
+    value => "$keystone_signing_dir"
+  }
+
   file { "/etc/glance/glance-api.conf":
     ensure  => present,
     owner   => 'glance',
