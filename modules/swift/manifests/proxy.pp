@@ -50,7 +50,7 @@ class swift::proxy(
   $keystone_admin_user = 'swift',
   $keystone_admin_password = 'SERVICE_PASSWORD',
   $keystone_admin_tenant_name = 'service',
-  $keystone_signing_dir = '/var/lib/swift/keystone-signing'
+  $keystone_signing_dir = '/etc/swift/keystone-signing'
 ) inherits swift {
 
   Class['memcached'] -> Class['swift::proxy']
