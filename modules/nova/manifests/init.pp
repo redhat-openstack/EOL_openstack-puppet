@@ -38,6 +38,7 @@ class nova(
   $qpid_tcp_nodelay = true,
 
   $network_manager = 'nova.network.manager.FlatManager',
+  $force_dhcp_release = false,
   $flat_network_bridge = 'br100',
   $service_down_time = 60,
   $logdir = '/var/log/nova',
@@ -130,6 +131,7 @@ class nova(
     # config b/c they have to be set by both compute
     # as well as controller.
     'network_manager': value => $network_manager;
+    'force_dhcp_release': value => $force_dhcp_release;
     #'use_deprecated_auth': value => true;
     'default_instance_type': value => 'm1.tiny';
     'libvirt_type': value => $libvirt_type;

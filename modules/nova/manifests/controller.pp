@@ -55,6 +55,7 @@ class nova::controller(
   $firewall_driver = 'nova.virt.libvirt.firewall.IptablesFirewallDriver',
   $scheduler_default_filters = 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
   $disable_process_locking = false,
+  $force_dhcp_release = false,
   $keystone_enabled = false
 ) {
 
@@ -98,6 +99,7 @@ class nova::controller(
     disable_process_locking => $disable_process_locking,
     libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds,
     firewall_driver => $firewall_driver,
+    force_dhcp_release => $force_dhcp_release,
     flat_network_bridge => $flat_network_bridge
 
   }
