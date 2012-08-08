@@ -136,7 +136,7 @@ class nova(
     'default_instance_type': value => 'm1.tiny';
     'libvirt_type': value => $libvirt_type;
     'iscsi_helper': value => 'tgtadm';
-    'root_helper': value => 'sudo nova-rootwrap /etc/nova/rootwrap.conf';
+    'rootwrap_config': value => '/etc/nova/rootwrap.conf';
     'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
     'public_interface': value => 'eth0';
     'compute_driver': value => $compute_driver;
