@@ -49,21 +49,13 @@ class keystone::api(
     require     => Package["openstack-keystone"]
   }
 
-  file { "/etc/keystone/ssl/":
-    ensure  => directory,
-    owner   => 'keystone',
-    group   => 'root',
-    mode    => 750,
-    require => Package['openstack-keystone']
-  }
-
   file { "/etc/keystone/keystone.conf":
     ensure  => present,
     owner   => 'keystone',
     group   => 'root',
     mode    => 640,
     content => template('keystone/keystone.conf.erb'),
-    require => [Package['openstack-keystone'], File['/etc/keystone/ssl/']],
+    require => Package['openstack-keystone'],
     notify        => Exec["keystone-db-sync"]
   }
 
