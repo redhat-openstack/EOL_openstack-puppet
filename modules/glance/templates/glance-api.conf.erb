@@ -31,6 +31,10 @@ log_file = <%= log_file %>
 # Backlog requests when creating socket
 backlog = <%= backlog %>
 
+# TCP_KEEPIDLE value in seconds when creating socket.
+# Not supported on OS X.
+tcp_keepidle = <%= tcp_keepidle %>
+
 # SQLAlchemy connection string for the reference implementation
 # registry server. Any valid SQLAlchemy connection string is fine.
 # See: http://www.sqlalchemy.org/docs/05/reference/sqlalchemy/connections.html#sqlalchemy.create_engine
@@ -44,9 +48,6 @@ sql_connection = <%= sql_connection %>
 # notice this, you can lower this value to ensure that SQLAlchemy reconnects
 # before MySQL can drop the connection.
 sql_idle_timeout = <%= sql_idle_timeout %>
-
-# Auto create the database when the service starts.
-db_auto_create = <%= db_auto_create %>
 
 # Number of Glance API worker processes to start.
 # On machines with more than one CPU increasing this value
@@ -203,6 +204,14 @@ swift_store_large_object_chunk_size = <%= swift_store_large_object_chunk_size %>
 # `swift_store_auth_address` with 'snet-'.
 # Ex. https://example.com/v1.0/ -> https://snet-example.com/v1.0/
 swift_enable_snet = <%= swift_enable_snet %>
+
+# If set to True enables multi-tenant storage mode which causes Glance images
+# to be stored in tenant specific Swift accounts.
+swift_store_multi_tenant = <%= swift_store_multi_tenant %>
+
+# A list of tenants that will be granted read/write access on all Swift
+# containers created by Glance in multi-tenant mode.
+swift_store_admin_tenants = <%= swift_store_admin_tenants %>
 
 # ============ S3 Store Options =============================
 

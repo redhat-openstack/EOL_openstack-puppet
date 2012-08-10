@@ -6,6 +6,7 @@ class glance::api(
   $bind_port = '9292',
   $log_file = '/var/log/glance/api.log',
   $backlog = '4096',
+  $tcp_keepidle = '600',
   $workers = '0',
   $admin_role = 'admin',
   $allow_anonymous_access = 'False',
@@ -24,7 +25,6 @@ class glance::api(
 
   $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
   $sql_idle_timeout = '3600',
-  $db_auto_create = 'False',
 
   $rabbit_host = 'localhost',
   $rabbit_port = '5672',
@@ -62,6 +62,8 @@ class glance::api(
   $swift_store_large_object_size = '5120',
   $swift_store_large_object_chunk_size = '200',
   $swift_enable_snet = 'False',
+  $swift_store_multi_tenant = 'False',
+  $swift_store_admin_tenants = '[]',
 
   $s3_store_host = '127.0.0.1:8080/v1.0/',
   $s3_store_access_key = 'ABCD',
