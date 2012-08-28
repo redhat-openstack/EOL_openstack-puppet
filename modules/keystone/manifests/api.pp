@@ -30,7 +30,7 @@ class keystone::api(
   $ssl_keyfile = '/etc/keystone/ssl/private/keystonekey.pem',
   $ssl_ca_certs = '/etc/keystone/ssl/certs/ca.pem',
   $ssl_cert_required = True,
-  $signing_enable = undef,
+  $token_format = 'UUID',
   $signing_certfile = '/etc/keystone/ssl/certs/signing_cert.pem',
   $signing_keyfile = '/etc/keystone/ssl/private/signing_key.pem',
   $signing_ca_certs = '/etc/keystone/ssl/certs/ca.pem',

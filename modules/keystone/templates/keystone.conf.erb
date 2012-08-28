@@ -83,8 +83,8 @@ cert_required = <%= ssl_cert_required %>
 <% end %>
 
 [signing]
-<% if @signing_enable %>
-disable_pki=False
+token_format=<%= @token_format %>
+<% if @token_format == 'PKI' %>
 certfile = /etc/keystone/ssl/certs/signing_cert.pem
 keyfile = /etc/keystone/ssl/private/signing_key.pem
 ca_certs = /etc/keystone/ssl/certs/ca.pem
