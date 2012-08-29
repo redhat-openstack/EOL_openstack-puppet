@@ -24,9 +24,28 @@ class nova::volume( $enabled=false ) {
     #subscribe => File["/etc/nova/nova.conf"]
   }
 
+  #NOTE: This works around a startup issue w/ existing tgtd daemon and
+  # the Fedora systemd config
+  $tgtd_service_file = '/usr/lib/systemd/system/tgtd.service'
+  file { $tgtd_service_file:
+    ensure  => present,
+    owner   => 'root',
+    group   => 'root',
+    mode    => 644,
+    source  => 'puppet:///modules/nova/tgtd.service'
+  }
+
+  exec { "daemon-reload":
+    command => "systemctl --system daemon-reload",
+    refreshonly => true,
+    path    => "/usr/bin",
+    subscribe   => File[$tgtd_service_file],
+  }
+
   service {'tgtd':
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
+    require => [Package["openstack-nova"], Exec['daemon-reload']],
   }
+
 }
