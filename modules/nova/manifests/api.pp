@@ -26,32 +26,44 @@ class nova::api(
     require     => [Package["openstack-nova"], Nova_config['sql_connection']],
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/auth_host":
+  nova::paste_config { "set_nova_auth_host":
+    key => "api-paste.ini/filter:authtoken/auth_host",
     value => "$keystone_auth_host"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/auth_port":
+  nova::paste_config { "set_nova_auth_port":
+    key => "api-paste.ini/filter:authtoken/auth_port",
     value => "$keystone_auth_port"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/auth_protocol":
+  nova::paste_config { "set_nova_auth_protocol":
+    key => "api-paste.ini/filter:authtoken/auth_protocol",
     value => "$keystone_auth_protocol"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/auth_uri":
+  nova::paste_config { "set_nova_auth_uri":
+    key => "api-paste.ini/filter:authtoken/auth_uri",
     value => "$keystone_auth_uri"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/admin_user":
+  nova::paste_config { "set_nova_admin_user":
+    key => "api-paste.ini/filter:authtoken/admin_user",
     value => "$keystone_admin_user"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/admin_password":
+  nova::paste_config { "set_nova_admin_password":
+    key => "api-paste.ini/filter:authtoken/admin_password",
     value => "$keystone_admin_password"
   }
 
-  nova::paste_config { "api-paste.ini/filter:authtoken/admin_tenant_name":
+  nova::paste_config { "set_nova_admin_tenant_name":
+    key => "api-paste.ini/filter:authtoken/admin_tenant_name",
     value => "$keystone_admin_tenant_name"
+  }
+
+  nova::paste_config { "set_nova_signing_dir":
+    key => "api-paste.ini/filter:authtoken/signing_dir",
+    value => "$keystone_signing_dir"
   }
 
   file { $keystone_signing_dir:
@@ -59,11 +71,7 @@ class nova::api(
     mode    => '750',
     owner   => 'nova',
     group   => 'nova',
-    require => Package['openstack-keystone'],
-  }
-
-  nova::paste_config { "api-paste.ini/filter:authtoken/signing_dir":
-    value => "$keystone_signing_dir"
+    require => Package['openstack-nova'],
   }
 
   service { "nova-api":
@@ -71,13 +79,14 @@ class nova::api(
     ensure  => $service_ensure,
     enable  => $enabled,
     require => Package["openstack-nova"],
-    subscribe => [Augeas['api-paste.ini/filter:authtoken/auth_host'],
-                  Augeas['api-paste.ini/filter:authtoken/auth_port'],
-                  Augeas['api-paste.ini/filter:authtoken/auth_protocol'],
-                  Augeas['api-paste.ini/filter:authtoken/auth_uri'],
-                  Augeas['api-paste.ini/filter:authtoken/admin_user'],
-                  Augeas['api-paste.ini/filter:authtoken/admin_password'],
-                  Augeas['api-paste.ini/filter:authtoken/admin_tenant_name']
+    subscribe => [Augeas['set_nova_auth_host'],
+                  Augeas['set_nova_auth_port'],
+                  Augeas['set_nova_auth_protocol'],
+                  Augeas['set_nova_auth_uri'],
+                  Augeas['set_nova_admin_user'],
+                  Augeas['set_nova_admin_password'],
+                  Augeas['set_nova_admin_tenant_name'],
+                  Augeas['set_nova_signing_dir']
     ]
   }
 

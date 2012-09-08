@@ -82,35 +82,43 @@ class glance::api(
   $api_flavor = '',
 ) inherits glance {
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_host":
+  glance::paste_config { "set_glance_auth_host":
+    key => "glance-api-paste.ini/filter:authtoken/auth_host",
     value => "$keystone_auth_host"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_port":
+  glance::paste_config { "set_glance_auth_port":
+    key => "glance-api-paste.ini/filter:authtoken/auth_port",
     value => "$keystone_auth_port"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_protocol":
+  glance::paste_config { "set_glance_auth_protocol":
+    key => "glance-api-paste.ini/filter:authtoken/auth_protocol",
     value => "$keystone_auth_protocol"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/auth_uri":
+  glance::paste_config { "set_glance_auth_uri":
+    key => "glance-api-paste.ini/filter:authtoken/auth_uri",
     value => "$keystone_auth_uri"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_user":
+  glance::paste_config { "set_glance_admin_user":
+    key => "glance-api-paste.ini/filter:authtoken/admin_user",
     value => "$keystone_admin_user"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_password":
+  glance::paste_config { "set_glance_admin_password":
+    key => "glance-api-paste.ini/filter:authtoken/admin_password",
     value => "$keystone_admin_password"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/admin_tenant_name":
+  glance::paste_config { "set_glance_admin_tenant_name":
+    key => "glance-api-paste.ini/filter:authtoken/admin_tenant_name",
     value => "$keystone_admin_tenant_name"
   }
 
-  glance::paste_config { "glance-api-paste.ini/filter:authtoken/signing_dir":
+  glance::paste_config { "set_glance_signing_dir":
+    key => "glance-api-paste.ini/filter:authtoken/signing_dir",
     value => "$keystone_signing_dir"
   }
 
@@ -129,13 +137,14 @@ class glance::api(
     hasstatus  => true,
     hasrestart => true,
     subscribe  => [File["/etc/glance/glance-api.conf"],
-                   Augeas['glance-api-paste.ini/filter:authtoken/auth_host'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/auth_port'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/auth_protocol'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/auth_uri'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/admin_user'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/admin_password'],
-                   Augeas['glance-api-paste.ini/filter:authtoken/admin_tenant_name']
+                   Augeas['set_glance_auth_host'],
+                   Augeas['set_glance_auth_port'],
+                   Augeas['set_glance_auth_protocol'],
+                   Augeas['set_glance_auth_uri'],
+                   Augeas['set_glance_admin_user'],
+                   Augeas['set_glance_admin_password'],
+                   Augeas['set_glance_admin_tenant_name'],
+                   Augeas['set_glance_signing_dir']
                   ],
     require    => Class["glance"]
   }

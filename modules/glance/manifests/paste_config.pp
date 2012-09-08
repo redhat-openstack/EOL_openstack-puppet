@@ -1,5 +1,6 @@
 define glance::paste_config(
   $context = '',
+  $key = '',
   $value = '',
   $basecontext = '/files/etc/glance/',
 ) {
@@ -9,10 +10,10 @@ define glance::paste_config(
   augeas { $name:
     context   => "$basecontext",
     changes   => [
-        "set $name $value",
+        "set $key $value",
       ],
     require => [Class["glance"], File["/usr/share/augeas/lenses/pythonpaste.aug"]],
-    onlyif  => "get $basecontext/$name != $value",
+    onlyif  => "get $basecontext/$key != $value",
   }
 
 }

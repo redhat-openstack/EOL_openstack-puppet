@@ -1,5 +1,6 @@
 define nova::paste_config(
   $context = '',
+  $key = '',
   $value = '',
   $basecontext = '/files/etc/nova/',
 ) {
@@ -9,10 +10,10 @@ define nova::paste_config(
   augeas { $name:
     context   => "$basecontext",
     changes   => [
-        "set $name $value",
+        "set $key $value",
       ],
     require => [Class["nova"], File["/usr/share/augeas/lenses/pythonpaste.aug"]],
-    onlyif  => "get $basecontext/$name != $value",
+    onlyif  => "get $basecontext/$key != $value",
   }
 
 }
