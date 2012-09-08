@@ -32,6 +32,7 @@ let lns     = IniFile.lns record comment
 let filter = ((incl "/etc/glance/*.ini")
              . (incl "/etc/keystone/keystone.conf")
              . (incl "/etc/nova/api-paste.ini")
+             . (incl "/etc/cinder/api-paste.ini")
              . (incl "/etc/swift/swift.conf")
              . (incl "/etc/swift/proxy-server.conf")
              . (incl "/etc/swift/account-server/*.conf")
