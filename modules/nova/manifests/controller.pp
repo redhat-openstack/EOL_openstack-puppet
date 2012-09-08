@@ -56,7 +56,8 @@ class nova::controller(
   $scheduler_default_filters = 'AvailabilityZoneFilter,RamFilter,ComputeFilter',
   $disable_process_locking = false,
   $force_dhcp_release = false,
-  $keystone_enabled = false
+  $keystone_enabled = false,
+  $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata'
 ) {
 
 
@@ -100,8 +101,8 @@ class nova::controller(
     libvirt_wait_soft_reboot_seconds => $libvirt_wait_soft_reboot_seconds,
     firewall_driver => $firewall_driver,
     force_dhcp_release => $force_dhcp_release,
-    flat_network_bridge => $flat_network_bridge
-
+    flat_network_bridge => $flat_network_bridge,
+    enabled_apis => $enabled_apis
   }
 
   class { "nova::api": enabled => true, keystone_enabled => $keystone_enabled }
@@ -111,7 +112,6 @@ class nova::controller(
     flat_network_bridge         => $flat_network_bridge,
     flat_network_bridge_ip      => $flat_network_bridge_ip,
     flat_network_bridge_netmask => $flat_network_bridge_netmask,
-    
   }
 
   class { "nova::objectstore": 

@@ -37,13 +37,13 @@ class nova(
   $qpid_protocol = 'tcp',
   $qpid_tcp_nodelay = true,
 
-  $network_manager = 'nova.network.manager.FlatManager',
+  $network_manager = 'nova.network.manager.FlatDHCPManager',
   $force_dhcp_release = false,
   $flat_network_bridge = 'br100',
   $service_down_time = 60,
   $logdir = '/var/log/nova',
   $state_path = '/var/lib/nova',
-  $lock_path = '/var/lock/nova',
+  $lock_path = '/var/lib/nova/tmp',
   $verbose = false,
   $nodaemon = false,
   $periodic_interval = '60',
@@ -56,8 +56,9 @@ class nova(
   $disable_process_locking = false,
   $firewall_driver = 'nova.virt.libvirt.firewall.IptablesFirewallDriver',
   $s3_host = 'localhost',
-  $s3_port = 3333
-
+  $s3_port = 3333,
+  $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata',
+  $volume_api_class = 'nova.volume.api.API'
 ) {
 
   Nova_config<| |> {
@@ -148,6 +149,8 @@ class nova(
     'disable_process_locking': value => $disable_process_locking;
     's3_host': value => $s3_host;
     's3_port': value => $s3_port;
+    'enabled_apis': value => $enabled_apis;
+    'volume_api_class': value => $volume_api_class;
   }
 
   exec { 'post-nova_config':
