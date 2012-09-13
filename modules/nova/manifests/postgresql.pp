@@ -9,7 +9,7 @@ class nova::postgresql(
   $db_host='localhost'
 ) {
 
-  Class['postgresql::server'] -> Package<| title == 'openstack-nova' |>
+  Class['postgresql::server'] -> Package<| title == 'openstack-nova-common' |>
 
   postgresql_database_user { $db_name:
     db_user  => $db_user,

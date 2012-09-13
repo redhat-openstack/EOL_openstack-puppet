@@ -62,23 +62,14 @@ class nova(
 ) {
 
   Nova_config<| |> {
-    require +> Package["openstack-nova"],
+    require +> Package["openstack-nova-common"],
     before +> File['/etc/nova/nova.conf'],
     notify +> Exec['post-nova_config']
   }
-  # TODO - why is this required?
-  package { 'python':
-    ensure => present,
-  }
-  package { 'python-greenlet':
-    ensure => present,
-    require => Package['python'],
-  }
 
   class { 'nova::utilities': }
-  package { ["python-nova", "openstack-nova"]:
-    ensure  => present,
-    require => Package["python-greenlet"]
+  package { ['python-nova', 'openstack-nova-common']:
+    ensure  => present
   }
   group { 'nova':
     ensure => present
@@ -92,7 +83,7 @@ class nova(
     mode    => '751',
     owner   => 'nova',
     group   => 'nova',
-    require => Package['openstack-nova'],
+    require => Package['openstack-nova-common'],
   }
   file { '/etc/nova/nova.conf':
     owner => 'nova',

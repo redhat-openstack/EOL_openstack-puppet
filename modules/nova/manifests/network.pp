@@ -1,4 +1,4 @@
-class nova::network( $enabled=false ) {
+class nova::network( $enabled=true ) {
 
   Exec['post-nova_config'] ~> Service['nova-network']
   Exec['nova-db-sync'] ~> Service['nova-network']
@@ -9,12 +9,15 @@ class nova::network( $enabled=false ) {
     $service_ensure = 'stopped'
   }
 
+  package {'openstack-nova-network':
+    ensure  => present
+  }
+
   service { "nova-network":
     name => 'openstack-nova-network',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
-    before  => Exec['networking-refresh'],
-    #subscribe => File["/etc/nova/nova.conf"]
+    require => Package["openstack-nova-network"],
+    before  => Exec['networking-refresh']
   }
 }

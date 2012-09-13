@@ -1,4 +1,4 @@
-class nova::objectstore( $enabled=false ) {
+class nova::objectstore( $enabled=true ) {
 
   Exec['post-nova_config'] ~> Service['nova-objectstore']
   Exec['nova-db-sync'] ~> Service['nova-objectstore']
@@ -9,11 +9,15 @@ class nova::objectstore( $enabled=false ) {
     $service_ensure = 'stopped'
   }
 
+  package {'openstack-nova-objectstore':
+    ensure  => present
+  }
+
   service { "nova-objectstore":
     name => 'openstack-nova-objectstore',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
-    #subscribe => File["/etc/nova/nova.conf"]
+    require => Package["openstack-nova-objectstore"]
   }
+
 }

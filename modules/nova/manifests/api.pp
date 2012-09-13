@@ -1,5 +1,5 @@
 class nova::api(
-  $enabled=false,
+  $enabled=true,
   $keystone_enabled = false,
   $keystone_auth_host = '127.0.0.1',
   $keystone_auth_port = '35357',
@@ -14,6 +14,10 @@ class nova::api(
   Exec['post-nova_config'] ~> Service['nova-api']
   Exec['nova-db-sync'] ~> Service['nova-api']
 
+  package {'openstack-nova-api':
+    ensure  => present
+  }
+
   if $enabled {
     $service_ensure = 'running'
   } else {
@@ -23,7 +27,7 @@ class nova::api(
   exec { "initial-db-sync":
     command     => "/usr/bin/nova-manage db sync",
     refreshonly => true,
-    require     => [Package["openstack-nova"], Nova_config['sql_connection']],
+    require     => [Package["openstack-nova-common"], Nova_config['sql_connection']],
   }
 
   nova::paste_config { "set_nova_auth_host":
@@ -71,14 +75,14 @@ class nova::api(
     mode    => '750',
     owner   => 'nova',
     group   => 'nova',
-    require => Package['openstack-nova'],
+    require => Package['openstack-nova-api'],
   }
 
   service { "nova-api":
     name => 'openstack-nova-api',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
+    require => Package["openstack-nova-api"],
     subscribe => [Augeas['set_nova_auth_host'],
                   Augeas['set_nova_auth_port'],
                   Augeas['set_nova_auth_protocol'],

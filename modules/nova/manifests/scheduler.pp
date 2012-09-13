@@ -1,4 +1,4 @@
-class nova::scheduler( $enabled ) {
+class nova::scheduler( $enabled=true ) {
 
   Exec['post-nova_config'] ~> Service['nova-scheduler']
   Exec['nova-db-sync'] -> Service['nova-scheduler']
@@ -9,11 +9,15 @@ class nova::scheduler( $enabled ) {
     $service_ensure = 'stopped'
   }
 
+  package {'openstack-nova-scheduler':
+    ensure  => present
+  }
+
   service { "nova-scheduler":
     name => 'openstack-nova-scheduler',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
-    #subscribe => File["/etc/nova/nova.conf"]
+    require => Package["openstack-nova-scheduler"]
   }
+
 }

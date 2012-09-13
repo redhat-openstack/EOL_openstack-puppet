@@ -6,7 +6,7 @@ class nova::mysql(
 ) {
 
   # Create the db instance before openstack-nova if its installed
-  Mysql::Db[$dbname] -> Package<| title == "openstack-nova" |>
+  Mysql::Db[$dbname] -> Package<| title == "openstack-nova-common" |>
 
   mysql::db { $dbname:
     user         => $user,

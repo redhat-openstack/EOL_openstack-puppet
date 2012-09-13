@@ -1,4 +1,4 @@
-class nova::volume( $enabled=false ) {
+class nova::volume( $enabled=true ) {
 
   Exec['post-nova_config'] ~> Service['nova-volume']
   Exec['nova-db-sync'] ~> Service['nova-volume']
@@ -16,12 +16,15 @@ class nova::volume( $enabled=false ) {
     before => Service['nova-volume'],
   }
 
+  package {'openstack-nova-volume':
+    ensure  => present
+  }
+
   service { "nova-volume":
     name => 'openstack-nova-volume',
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => Package["openstack-nova"],
-    #subscribe => File["/etc/nova/nova.conf"]
+    require => Package["openstack-nova-volume"]
   }
 
   #NOTE: This works around a startup issue w/ existing tgtd daemon and
@@ -45,7 +48,7 @@ class nova::volume( $enabled=false ) {
   service {'tgtd':
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => [Package["openstack-nova"], Exec['daemon-reload']],
+    require => [Package["openstack-nova-volume"], Exec['daemon-reload']],
   }
 
 }

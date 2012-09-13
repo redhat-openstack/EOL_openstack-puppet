@@ -10,7 +10,7 @@ class nova::qpid(
 ) {
 
   # only configure nova after the queue is up
-  Class['qpid::server'] -> Package<| title == 'openstack-nova' |>
+  Class['qpid::server'] -> Package<| title == 'openstack-nova-common' |>
 
   qpid_user { $user:
     password  => $password,
