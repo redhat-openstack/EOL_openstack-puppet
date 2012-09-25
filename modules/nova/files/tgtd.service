@@ -8,6 +8,7 @@ EnvironmentFile=/etc/sysconfig/tgtd
 ExecStart=/usr/sbin/tgtd -f $TGTD_OPTS
 
 # Add an extra sleep to wait for tgtd to start listening on port
+# https://bugzilla.redhat.com/show_bug.cgi?id=848942
 ExecStartPost=/bin/sleep 5
 
 # Put tgtd into "offline" state until all the targets are configured.
