@@ -50,7 +50,7 @@ $enabled = true
     group   => 'root',
     mode    => 600,
     content  => template('nova/targets.conf.erb'),
-    require => Package["openstack-nova"]
+    require => Package["openstack-nova-volume"]
   }
 
   exec { "daemon-reload":
