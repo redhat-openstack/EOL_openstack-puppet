@@ -58,7 +58,9 @@ class nova(
   $s3_host = 'localhost',
   $s3_port = 3333,
   $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata',
-  $volume_api_class = 'nova.volume.api.API'
+  $volume_api_class = 'nova.volume.api.API',
+  $volumes_dir = '/var/lib/nova/volumes',
+  $iscsi_helper = 'tgtadm'
 ) {
 
   Nova_config<| |> {
@@ -127,7 +129,8 @@ class nova(
     #'use_deprecated_auth': value => true;
     'default_instance_type': value => 'm1.tiny';
     'libvirt_type': value => $libvirt_type;
-    'iscsi_helper': value => 'tgtadm';
+    'iscsi_helper': value => $iscsi_helper;
+    'volumes_dir': value => $volumes_dir;
     'rootwrap_config': value => '/etc/nova/rootwrap.conf';
     'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
     'public_interface': value => 'eth0';

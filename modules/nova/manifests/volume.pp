@@ -1,4 +1,7 @@
-class nova::volume( $enabled=true ) {
+class nova::volume(
+$volumes_dir = '/var/lib/nova/volumes',
+$enabled = true
+) {
 
   Exec['post-nova_config'] ~> Service['nova-volume']
   Exec['nova-db-sync'] ~> Service['nova-volume']
@@ -35,7 +38,19 @@ class nova::volume( $enabled=true ) {
     owner   => 'root',
     group   => 'root',
     mode    => 644,
-    source  => 'puppet:///modules/nova/tgtd.service'
+    source  => 'puppet:///modules/nova/tgtd.service',
+    require => Package["openstack-nova-volume"]
+  }
+
+  #FIXME: Ideally we could use /etc/tgt/conf.d/nova.conf but there
+  # is an issue w/ it using wildcards. So we use targets.conf instead.
+  file { '/etc/tgt/targets.conf':
+    ensure  => present,
+    owner   => 'root',
+    group   => 'root',
+    mode    => 600,
+    content  => template('nova/targets.conf.erb'),
+    require => Package["openstack-nova"]
   }
 
   exec { "daemon-reload":

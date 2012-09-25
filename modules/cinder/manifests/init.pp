@@ -34,6 +34,10 @@ class cinder(
   $logdir = '/var/log/cinder',
   $state_path = '/var/lib/cinder',
   $lock_path = '/var/lock/cinder',
+
+  $volumes_dir = '/var/lib/cinder/volumes',
+  $iscsi_helper = 'tgtadm',
+
   $verbose = false
 
 ) {
@@ -88,7 +92,8 @@ class cinder(
     'control_exchange': value => $control_exchange;
     'state_path': value => $state_path;
     'lock_path': value => $lock_path;
-    'iscsi_helper': value => 'tgtadm';
+    'iscsi_helper': value => $iscsi_helper;
+    'volumes_dir': value => $volumes_dir;
     'rootwrap_config': value => '/etc/cinder/rootwrap.conf';
   }
 

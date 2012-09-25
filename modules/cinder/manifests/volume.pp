@@ -34,7 +34,19 @@ class cinder::volume(
     owner   => 'root',
     group   => 'root',
     mode    => 644,
-    source  => 'puppet:///modules/cinder/tgtd.service'
+    source  => 'puppet:///modules/cinder/tgtd.service',
+    require => Package["openstack-cinder"]
+  }
+
+  #FIXME: Ideally we could use /etc/tgt/conf.d/cinder.conf but there
+  # is an issue w/ it using wildcards. So we use targets.conf instead.
+  file { '/etc/tgt/targets.conf':
+    ensure  => present,
+    owner   => 'root',
+    group   => 'root',
+    mode    => 600,
+    content  => template('cinder/targets.conf.erb'),
+    require => Package["openstack-cinder"]
   }
 
   exec { "daemon-reload":
