@@ -53,7 +53,7 @@ class cinder::volume(
     command => "systemctl --system daemon-reload",
     refreshonly => true,
     path    => "/usr/bin",
-    subscribe   => File[$tgtd_service_file],
+    subscribe   => [File[$tgtd_service_file], File['/etc/tgt/targets.conf']]
   }
 
   service {'tgtd':
