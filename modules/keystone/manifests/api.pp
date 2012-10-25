@@ -25,6 +25,7 @@ class keystone::api(
   $image_host = 'localhost',
   $storage_host = 'localhost',
   $compute_host = 'localhost',
+  $network_host = 'localhost',
   $ssl_enable = undef,
   $ssl_certfile = '/etc/keystone/ssl/certs/keystone.pem',
   $ssl_keyfile = '/etc/keystone/ssl/private/keystonekey.pem',
