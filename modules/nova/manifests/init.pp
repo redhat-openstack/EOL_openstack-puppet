@@ -38,6 +38,7 @@ class nova(
   $qpid_tcp_nodelay = true,
 
   $network_manager = 'nova.network.manager.FlatDHCPManager',
+  $network_api_class = 'nova.network.api.API',
   $force_dhcp_release = false,
   $flat_network_bridge = 'br100',
   $service_down_time = 60,
@@ -60,7 +61,17 @@ class nova(
   $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata',
   $volume_api_class = 'nova.volume.api.API',
   $volumes_dir = '/var/lib/nova/volumes',
-  $iscsi_helper = 'tgtadm'
+  $iscsi_helper = 'tgtadm',
+
+  $quantum_use_dhcp = 'True',
+  $quantum_connection_host = 'localhost',
+  $quantum_auth_strategy = 'keystone',
+  $quantum_admin_tenant_name = 'service',
+  $quantum_admin_username = 'quantum',
+  $quantum_admin_password = 'SERVICE_PASSWORD',
+  $quantum_url = 'http://127.0.0.1:9696',
+  $quantum_admin_auth_url = 'http://127.0.0.1:35357/v2.0'
+
 ) {
 
   Nova_config<| |> {
@@ -145,6 +156,7 @@ class nova(
     's3_port': value => $s3_port;
     'enabled_apis': value => $enabled_apis;
     'volume_api_class': value => $volume_api_class;
+    'network_api_class': value => $network_api_class;
   }
 
   exec { 'post-nova_config':
@@ -172,6 +184,18 @@ class nova(
       'dhcpbridge': value => "/usr/bin/nova-dhcpbridge";
       'dhcpbridge_flagfile': value => "/etc/nova/nova.conf";
       'flat_network_bridge': value => $flat_network_bridge;
+    }
+  }
+
+  if $network_api_class == 'nova.network.quantumv2.api.API' {
+    nova_config {
+      'quantum_use_dhcp': value => $use_dhcp;
+      'quantum_auth_strategy': value => $quantum_auth_strategy;
+      'quantum_url': value => $quantum_url;
+      'quantum_admin_tenant_name': value => $quantum_admin_tenant_name;
+      'quantum_admin_username': value => $quantum_admin_username;
+      'quantum_admin_password': value => $quantum_admin_password;
+      'quantum_admin_auth_url': value => $quantum_admin_auth_url;
     }
   }
 
