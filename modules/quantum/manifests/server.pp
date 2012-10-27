@@ -6,6 +6,16 @@ class quantum::server (
   Quantum_config<||> ~> Service["quantum-server"]
   Quantum_api_config<||> ~> Service["quantum-server"]
 
+  if ($sql_connection =~ /mysql:\/\/\S+:\S+@\S+\/\S+/) {
+    Package['python-mysqldb'] -> Service['quantum-server']
+  } elsif ($sql_connection =~ /postgresql:\/\/\S+:\S+@\S+\/\S+/) {
+    Package['python-psycopg2'] -> Service['quantum-server']
+  } elsif($sql_connection =~ /sqlite:\/\//) {
+    Package['python-pysqlite2'] -> Service['quantum-server']
+  } else {
+    fail("Invalid db connection ${sql_connection}")
+  }
+
   quantum_config {
     "DEFAULT/log_file":  value => $log_file
   }
