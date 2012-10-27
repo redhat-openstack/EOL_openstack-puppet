@@ -30,6 +30,8 @@ class quantum::server (
     ensure     => $service_ensure,
     enable     => $enabled,
     hasstatus  => true,
-    hasrestart => true
+    hasrestart => true,
+    require => Package["quantum"]
   }
+
 }
