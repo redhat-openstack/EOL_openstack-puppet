@@ -14,13 +14,10 @@
 # Sample Usage:
 #
 class postgresql::python(
-  $ensure = installed,
+  $ensure = 'present',
   $package_name = 'python-psycopg2'
 ) {
 
-  package { 'python-psycopg2':
-    name => $package_name,
-    ensure => $ensure,
-  }
+  ensure_resource( 'package', $package_name, {'ensure' => $ensure})
 
 }

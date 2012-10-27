@@ -14,12 +14,10 @@
 # Sample Usage:
 #
 class mysql::python(
-  $ensure = installed,
+  $ensure = 'present',
   $package_name = $mysql::params::python_package_name
 ) inherits mysql::params {
 
-  package { 'python-mysqldb':
-    name => $package_name,
-    ensure => $ensure,
-  }
+  ensure_resource( 'package', $package_name, {'ensure' => $ensure})
+
 }
