@@ -70,8 +70,8 @@ class nova(
   $quantum_admin_username = 'quantum',
   $quantum_admin_password = 'SERVICE_PASSWORD',
   $quantum_url = 'http://127.0.0.1:9696',
-  $quantum_admin_auth_url = 'http://127.0.0.1:35357/v2.0'
-
+  $quantum_admin_auth_url = 'http://127.0.0.1:35357/v2.0',
+  $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtBridgeDriver'
 ) {
 
   Nova_config<| |> {
@@ -157,6 +157,7 @@ class nova(
     'enabled_apis': value => $enabled_apis;
     'volume_api_class': value => $volume_api_class;
     'network_api_class': value => $network_api_class;
+    'libvirt_vif_driver': value => $libvirt_vif_driver;
   }
 
   exec { 'post-nova_config':
