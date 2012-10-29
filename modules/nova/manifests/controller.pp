@@ -122,10 +122,6 @@ class nova::controller(
     enabled => true,
   }
 
-  class { "nova::volume": 
-    enabled => true,
-  }
-
   class { "nova::scheduler": enabled => true }
 
   nova::manage::network { "net-${nova_network}":
