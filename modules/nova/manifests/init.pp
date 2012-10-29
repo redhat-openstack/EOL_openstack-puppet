@@ -59,7 +59,7 @@ class nova(
   $s3_host = 'localhost',
   $s3_port = 3333,
   $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata',
-  $volume_api_class = 'nova.volume.api.API',
+  $volume_api_class = 'nova.volume.cinder.API',
   $volumes_dir = '/var/lib/nova/volumes',
   $iscsi_helper = 'tgtadm',
 
