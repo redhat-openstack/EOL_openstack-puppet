@@ -16,9 +16,9 @@ class quantum::server (
     fail("Invalid db connection ${sql_connection}")
   }
 
-  quantum_config {
-    "DEFAULT/log_file":  value => $log_file
-  }
+  #quantum_config {
+    #"DEFAULT/log_file":  value => $log_file
+  #}
 
   quantum_api_config {
     "filter:authtoken/auth_host": value => $auth_host;
