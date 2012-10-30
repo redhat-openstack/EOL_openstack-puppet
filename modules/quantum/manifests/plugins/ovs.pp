@@ -1,16 +1,16 @@
 class quantum::plugins::ovs (
   $sql_connection       = 'sqlite:////var/lib/quantum/ovs.sqlite',
-  $bridge_uplinks       = ['br-virtual:eth1'],
-  $bridge_mappings      = ['default:br-virtual'],
-  $tenant_network_type  = "vlan",
+  $tenant_network_type  = "local",
 
-  $network_vlan_ranges  = "default:1000:2000",
+  $network_vlan_ranges  = "",
   $integration_bridge   = "br-int",
 
   $enable_tunneling     = "False",
   $tunnel_bridge        = "br-tun",
-  $tunnel_id_ranges     = "1:1000",
-  $local_ip             = "10.0.0.1",
+  $tunnel_id_ranges     = "",
+  $local_ip             = "",
+  $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+
 
 ) inherits quantum {
 
@@ -30,14 +30,19 @@ class quantum::plugins::ovs (
 
   quantum_plugin_ovs {
     'DATABASE/sql_connection': value => $sql_connection;
+    'AGENT/root_helper': value => $root_helper;
   }
 
-  $br_map_str = join($bridge_mappings, ",")
   quantum_plugin_ovs {
     "OVS/integration_bridge":   value => $integration_bridge;
     "OVS/network_vlan_ranges":  value => $network_vlan_ranges;
     "OVS/tenant_network_type":  value => $tenant_network_type;
-    "OVS/bridge_mappings":      value => $br_map_str;
+  }
+
+  if $bridge_mappings {
+    quantum_plugin_ovs {
+      "OVS/bridge_mappings":      value => $bridge_mappings;
+    }
   }
 
   if ($tenant_network_type == "gre") and ($enable_tunneling) {

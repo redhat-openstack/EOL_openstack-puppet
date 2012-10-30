@@ -27,8 +27,12 @@ class quantum::agents::ovs (
     }
   }
 
-  quantum::plugins::ovs::bridge{$bridge_mappings:}
-  quantum::plugins::ovs::port{$bridge_uplinks:}
+  if $bridge_mapping {
+    quantum::plugins::ovs::bridge{$bridge_mappings:}
+  }
+  if $bridge_uplinks {
+    quantum::plugins::ovs::port{$bridge_uplinks:}
+  }
 
   if $enabled {
     $service_ensure = "running"
