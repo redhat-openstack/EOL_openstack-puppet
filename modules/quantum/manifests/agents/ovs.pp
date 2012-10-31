@@ -1,4 +1,5 @@
 class quantum::agents::ovs (
+  $enabled = true,
   $controller = false
 ) inherits quantum::plugins::ovs {
 

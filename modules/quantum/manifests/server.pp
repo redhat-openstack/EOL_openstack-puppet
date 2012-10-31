@@ -1,4 +1,5 @@
 class quantum::server (
+  $enabled = true,
   $log_file = "/var/log/quantum/server.log",
 ) inherits quantum {
 

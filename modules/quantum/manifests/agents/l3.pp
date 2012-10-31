@@ -1,4 +1,5 @@
 class quantum::agents::l3 (
+  $enabled = true,
   $interface_driver         = "quantum.agent.linux.interface.OVSInterfaceDriver",
   $use_namespaces           = "True",
   $router_id                = "",

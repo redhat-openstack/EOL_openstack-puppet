@@ -1,4 +1,5 @@
 class quantum::agents::dhcp (
+  $enabled = true,
   $state_path         = "/var/lib/quantum",
   $interface_driver   = "quantum.agent.linux.interface.OVSInterfaceDriver",
   $dhcp_driver        = "quantum.agent.linux.dhcp.Dnsmasq",
