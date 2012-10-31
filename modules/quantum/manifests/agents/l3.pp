@@ -4,7 +4,7 @@ class quantum::agents::l3 (
   $router_id                = "",
   $metadata_ip              = $ipaddress,
   $metadata_port            = "35357",
-  $external_network_bridge  = "",
+  $external_network_bridge  = "br-ex",
   $handle_internal_only_routers  = "True",
   $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
 ) inherits quantum {
@@ -39,13 +39,13 @@ class quantum::agents::l3 (
     "DEFAULT/root_helper":              value => $root_helper;
   }
 
-  #if defined(Class["quantum::agents::ovs"]) {
-  #  vs_bridge {$external_network_bridge:
-  #    external_ids => "bridge-id=$external_network_bridge",
-  #    ensure       => present,
-  #    before       => Service['quantum-l3-service']
-  #  }
-  #}
+  if defined(Class["quantum::agents::ovs"]) {
+    vs_bridge {$external_network_bridge:
+      external_ids => "bridge-id=$external_network_bridge",
+      ensure       => present,
+      before       => Service['quantum-l3-service']
+    }
+  }
 
   if $enabled {
     $ensure = 'running'
