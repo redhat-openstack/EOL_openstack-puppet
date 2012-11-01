@@ -13,6 +13,19 @@ class quantum::agents::l3 (
   Quantum_config<||> ~> Service["quantum-l3-service"]
   Quantum_l3_agent_config<||> ~> Service["quantum-l3-service"]
 
+  Sysctl<||> -> Service["quantum-l3-service"]
+
+  sysctl::value { "net.ipv4.ip_forward": value => "1"}
+
+  exec { load-sysctl:
+    command => "/sbin/sysctl -p /etc/sysctl.conf",
+    refreshonly => true
+  }
+
+  Sysctl {
+    notify => Exec[load-sysctl]
+  }
+
   if defined(Service['quantum-server']) {
     Service["quantum-server"] -> Service["quantum-l3-service"]
   }
