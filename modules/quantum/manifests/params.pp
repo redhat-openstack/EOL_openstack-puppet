@@ -7,6 +7,9 @@ class quantum::params {
       $ovs_package        = 'openstack-quantum-openvswitch'
       $ovs_agent_service  = 'quantum-openvswitch-agent'
 
+      $linuxbridge_package        = 'openstack-quantum-linuxbridge'
+      $linuxbridge_agent_service  = 'quantum-linuxbridge-agent'
+
       $dhcp_package       = 'quantum-dhcp-agent'
       $dhcp_service       = 'quantum-dhcp-agent'
 
