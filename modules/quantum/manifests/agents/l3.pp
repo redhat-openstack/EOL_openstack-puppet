@@ -58,16 +58,15 @@ class quantum::agents::l3 (
       ensure       => present,
       before       => Service['quantum-l3-service']
     }
-    Vs_bridge<||> -> Service["quantum-l3-service"]
   }
 
   if defined(Class["quantum::agents::linuxbridge"]) {
     bridge{$external_network_bridge:
       name => $external_network_bridge,
       provider => 'brctl',
-      ensure => present
+      ensure => present,
+      before       => Service['quantum-l3-service']
     }
-    Bridge<||> -> Service["quantum-l3-service"]
   }
 
   if $enabled {
