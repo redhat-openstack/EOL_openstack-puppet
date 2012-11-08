@@ -57,7 +57,7 @@ class nova::controller(
   $disable_process_locking = false,
   $force_dhcp_release = false,
   $keystone_enabled = false,
-  $enabled_apis = 'ec2,osapi_compute,osapi_volume,metadata'
+  $enabled_apis = 'ec2,osapi_compute,metadata'
 ) {
 
 
