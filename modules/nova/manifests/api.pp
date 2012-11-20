@@ -27,7 +27,7 @@ class nova::api(
   exec { "initial-db-sync":
     command     => "/usr/bin/nova-manage db sync",
     refreshonly => true,
-    require     => [Package["openstack-nova-common"], Nova_config['sql_connection']],
+    require     => [Package["openstack-nova-common"], Nova_config['DEFAULT/sql_connection']],
   }
 
   nova::paste_config { "set_nova_auth_host":

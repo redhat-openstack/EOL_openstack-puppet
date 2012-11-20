@@ -74,11 +74,8 @@ class nova(
   $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtBridgeDriver'
 ) {
 
-  Nova_config<| |> {
-    require +> Package["openstack-nova-common"],
-    before +> File['/etc/nova/nova.conf'],
-    notify +> Exec['post-nova_config']
-  }
+  Package['openstack-nova-common'] -> Nova_config<| |> -> File['/etc/nova/nova.conf']
+  Nova_config<| |> ~> Exec['post-nova_config']
 
   class { 'nova::utilities': }
   package { ['python-nova', 'openstack-nova-common']:
@@ -101,7 +98,7 @@ class nova(
   file { '/etc/nova/nova.conf':
     owner => 'nova',
     group => 'nova',
-    mode  => '0640',
+    mode  => '0640'
   }
   exec { "nova-db-sync":
     command     => "/usr/bin/nova-manage db sync",
@@ -118,46 +115,46 @@ class nova(
 
   # query out the config for our db connection
   if $sql_connection {
-    nova_config { 'sql_connection': value => $sql_connection }
+    nova_config { 'DEFAULT/sql_connection': value => $sql_connection }
   }
 
   nova_config {
     #'verbose': value => $verbose;
-    'nodaemon': value => $nodaemon;
-    'logdir': value => $logdir;
-    'image_service': value => $image_service;
-    'allow_admin_api': value => $allow_admin_api;
-    'rpc_backend': value => $rpc_backend;
+    'DEFAULT/nodaemon': value => $nodaemon;
+    'DEFAULT/logdir': value => $logdir;
+    'DEFAULT/image_service': value => $image_service;
+    'DEFAULT/allow_admin_api': value => $allow_admin_api;
+    'DEFAULT/rpc_backend': value => $rpc_backend;
     # Following may need to be broken out to different nova services
-    'state_path': value => $state_path;
-    'lock_path': value => $lock_path;
-    'service_down_time': value => $service_down_time;
+    'DEFAULT/state_path': value => $state_path;
+    'DEFAULT/lock_path': value => $lock_path;
+    'DEFAULT/service_down_time': value => $service_down_time;
     # These network entries wound up in the common
     # config b/c they have to be set by both compute
     # as well as controller.
-    'network_manager': value => $network_manager;
-    'force_dhcp_release': value => $force_dhcp_release;
+    'DEFAULT/network_manager': value => $network_manager;
+    'DEFAULT/force_dhcp_release': value => $force_dhcp_release;
     #'use_deprecated_auth': value => true;
-    'default_instance_type': value => 'm1.tiny';
-    'libvirt_type': value => $libvirt_type;
-    'iscsi_helper': value => $iscsi_helper;
-    'volumes_dir': value => $volumes_dir;
-    'rootwrap_config': value => '/etc/nova/rootwrap.conf';
-    'vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
-    'public_interface': value => 'eth0';
-    'compute_driver': value => $compute_driver;
-    'auth_strategy': value => $auth_strategy;
-    'scheduler_default_filters': value => $scheduler_default_filters;
-    'allow_resize_to_same_host': value => $allow_resize_to_same_host;
-    'libvirt_wait_soft_reboot_seconds': value => $libvirt_wait_soft_reboot_seconds;
-    'firewall_driver': value => $firewall_driver;
-    'disable_process_locking': value => $disable_process_locking;
-    's3_host': value => $s3_host;
-    's3_port': value => $s3_port;
-    'enabled_apis': value => $enabled_apis;
-    'volume_api_class': value => $volume_api_class;
-    'network_api_class': value => $network_api_class;
-    'libvirt_vif_driver': value => $libvirt_vif_driver;
+    'DEFAULT/default_instance_type': value => 'm1.tiny';
+    'DEFAULT/libvirt_type': value => $libvirt_type;
+    'DEFAULT/iscsi_helper': value => $iscsi_helper;
+    'DEFAULT/volumes_dir': value => $volumes_dir;
+    'DEFAULT/rootwrap_config': value => '/etc/nova/rootwrap.conf';
+    'DEFAULT/vpn_client_template': value => '/usr/share/nova/client.ovpn.template';
+    'DEFAULT/public_interface': value => 'eth0';
+    'DEFAULT/compute_driver': value => $compute_driver;
+    'DEFAULT/auth_strategy': value => $auth_strategy;
+    'DEFAULT/scheduler_default_filters': value => $scheduler_default_filters;
+    'DEFAULT/allow_resize_to_same_host': value => $allow_resize_to_same_host;
+    'DEFAULT/libvirt_wait_soft_reboot_seconds': value => $libvirt_wait_soft_reboot_seconds;
+    'DEFAULT/firewall_driver': value => $firewall_driver;
+    'DEFAULT/disable_process_locking': value => $disable_process_locking;
+    'DEFAULT/s3_host': value => $s3_host;
+    'DEFAULT/s3_port': value => $s3_port;
+    'DEFAULT/enabled_apis': value => $enabled_apis;
+    'DEFAULT/volume_api_class': value => $volume_api_class;
+    'DEFAULT/network_api_class': value => $network_api_class;
+    'DEFAULT/libvirt_vif_driver': value => $libvirt_vif_driver;
   }
 
   exec { 'post-nova_config':
@@ -167,72 +164,72 @@ class nova(
 
   if $compute_driver == 'xenapi.XenAPIDriver' {
     nova_config {
-      'xenapi_connection_url': value => $xenapi_connection_url;
-      'xenapi_connection_username': value => $xenapi_connection_username;
-      'xenapi_connection_password': value => $xenapi_connection_password;
-      'xenapi_inject_image': value => $xenapi_inject_image;
+      'DEFAULT/xenapi_connection_url': value => $xenapi_connection_url;
+      'DEFAULT/xenapi_connection_username': value => $xenapi_connection_username;
+      'DEFAULT/xenapi_connection_password': value => $xenapi_connection_password;
+      'DEFAULT/xenapi_inject_image': value => $xenapi_inject_image;
     }
   }
 
   if $network_manager == 'nova.network.manager.FlatManager' {
     nova_config {
-      'flat_network_bridge': value => $flat_network_bridge
+      'DEFAULT/flat_network_bridge': value => $flat_network_bridge
     }
   }
 
   if $network_manager == 'nova.network.manager.FlatDHCPManager' {
     nova_config {
-      'dhcpbridge': value => "/usr/bin/nova-dhcpbridge";
-      'dhcpbridge_flagfile': value => "/etc/nova/nova.conf";
-      'flat_network_bridge': value => $flat_network_bridge;
+      'DEFAULT/dhcpbridge': value => "/usr/bin/nova-dhcpbridge";
+      'DEFAULT/dhcpbridge_flagfile': value => "/etc/nova/nova.conf";
+      'DEFAULT/flat_network_bridge': value => $flat_network_bridge;
     }
   }
 
   if $network_api_class == 'nova.network.quantumv2.api.API' {
     nova_config {
-      'quantum_use_dhcp': value => $use_dhcp;
-      'quantum_auth_strategy': value => $quantum_auth_strategy;
-      'quantum_url': value => $quantum_url;
-      'quantum_admin_tenant_name': value => $quantum_admin_tenant_name;
-      'quantum_admin_username': value => $quantum_admin_username;
-      'quantum_admin_password': value => $quantum_admin_password;
-      'quantum_admin_auth_url': value => $quantum_admin_auth_url;
+      'DEFAULT/quantum_use_dhcp': value => $use_dhcp;
+      'DEFAULT/quantum_auth_strategy': value => $quantum_auth_strategy;
+      'DEFAULT/quantum_url': value => $quantum_url;
+      'DEFAULT/quantum_admin_tenant_name': value => $quantum_admin_tenant_name;
+      'DEFAULT/quantum_admin_username': value => $quantum_admin_username;
+      'DEFAULT/quantum_admin_password': value => $quantum_admin_password;
+      'DEFAULT/quantum_admin_auth_url': value => $quantum_admin_auth_url;
     }
   }
 
   if $image_service == 'nova.image.glance.GlanceImageService' {
     nova_config {
-      'glance_api_servers': value => $glance_api_servers;
-      'glance_host': value => $glance_host;
-      'glance_port': value => $glance_port;
+      'DEFAULT/glance_api_servers': value => $glance_api_servers;
+      'DEFAULT/glance_host': value => $glance_host;
+      'DEFAULT/glance_port': value => $glance_port;
     }
   }
 
   if $rpc_backend == 'nova.rpc.impl_kombu' {
     nova_config {
-      'rabbit_host': value => $rabbit_host;
-      'rabbit_password': value => $rabbit_password;
-      'rabbit_port': value => $rabbit_port;
-      'rabbit_userid': value => $rabbit_userid;
-      'rabbit_virtual_host': value => $rabbit_virtual_host;
+      'DEFAULT/rabbit_host': value => $rabbit_host;
+      'DEFAULT/rabbit_password': value => $rabbit_password;
+      'DEFAULT/rabbit_port': value => $rabbit_port;
+      'DEFAULT/rabbit_userid': value => $rabbit_userid;
+      'DEFAULT/rabbit_virtual_host': value => $rabbit_virtual_host;
     }
   }
 
   if $rpc_backend == 'nova.rpc.impl_qpid' {
     nova_config {
-      'qpid_hostname': value => $qpid_hostname;
-      'qpid_port': value => $qpid_port;
-      'qpid_username': value => $qpid_username;
-      'qpid_password': value => $qpid_password;
-      'qpid_reconnect': value => $qpid_reconnect;
-      'qpid_reconnect_timeout': value => $qpid_reconnect_timeout;
-      'qpid_reconnect_limit': value => $qpid_reconnect_limit;
-      'qpid_reconnect_interval_min': value => $qpid_reconnect_interval_min;
-      'qpid_reconnect_interval_max': value => $qpid_reconnect_interval_max;
-      'qpid_reconnect_interval': value => $qpid_reconnect_interval;
-      'qpid_heartbeat': value => $qpid_heartbeat;
-      'qpid_protocol': value => $qpid_protocol;
-      'qpid_tcp_nodelay': value => $qpid_tcp_nodelay;
+      'DEFAULT/qpid_hostname': value => $qpid_hostname;
+      'DEFAULT/qpid_port': value => $qpid_port;
+      'DEFAULT/qpid_username': value => $qpid_username;
+      'DEFAULT/qpid_password': value => $qpid_password;
+      'DEFAULT/qpid_reconnect': value => $qpid_reconnect;
+      'DEFAULT/qpid_reconnect_timeout': value => $qpid_reconnect_timeout;
+      'DEFAULT/qpid_reconnect_limit': value => $qpid_reconnect_limit;
+      'DEFAULT/qpid_reconnect_interval_min': value => $qpid_reconnect_interval_min;
+      'DEFAULT/qpid_reconnect_interval_max': value => $qpid_reconnect_interval_max;
+      'DEFAULT/qpid_reconnect_interval': value => $qpid_reconnect_interval;
+      'DEFAULT/qpid_heartbeat': value => $qpid_heartbeat;
+      'DEFAULT/qpid_protocol': value => $qpid_protocol;
+      'DEFAULT/qpid_tcp_nodelay': value => $qpid_tcp_nodelay;
     }
   }
 
