@@ -71,6 +71,11 @@ class nova(
   $quantum_admin_password = 'SERVICE_PASSWORD',
   $quantum_url = 'http://127.0.0.1:9696',
   $quantum_admin_auth_url = 'http://127.0.0.1:35357/v2.0',
+
+
+  $conductor_use_local = 'True',
+  $conductor_topic = 'conductor',
+
   $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtBridgeDriver'
 ) {
 
@@ -155,6 +160,12 @@ class nova(
     'DEFAULT/volume_api_class': value => $volume_api_class;
     'DEFAULT/network_api_class': value => $network_api_class;
     'DEFAULT/libvirt_vif_driver': value => $libvirt_vif_driver;
+  }
+
+  # Nova conductor configs
+  nova_config {
+    'conductor/use_local': value => $conductor_use_local;
+    'conductor/topic': value => $conductor_topic;
   }
 
   exec { 'post-nova_config':
