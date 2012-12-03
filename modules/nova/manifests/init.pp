@@ -76,6 +76,9 @@ class nova(
   $conductor_use_local = 'True',
   $conductor_topic = 'conductor',
 
+  $service_quantum_metadata_proxy = 'False',
+  $quantum_metadata_proxy_shared_secret= '',
+
   $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtBridgeDriver'
 ) {
 
@@ -160,6 +163,8 @@ class nova(
     'DEFAULT/volume_api_class': value => $volume_api_class;
     'DEFAULT/network_api_class': value => $network_api_class;
     'DEFAULT/libvirt_vif_driver': value => $libvirt_vif_driver;
+    'DEFAULT/service_quantum_metadata_proxy': value => $service_quantum_metadata_proxy;
+    'DEFAULT/quantum_metadata_proxy_shared_secret': value => $quantum_metadata_proxy_shared_secret;
   }
 
   # Nova conductor configs

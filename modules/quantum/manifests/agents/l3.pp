@@ -3,8 +3,8 @@ class quantum::agents::l3 (
   $interface_driver         = "quantum.agent.linux.interface.OVSInterfaceDriver",
   $use_namespaces           = "True",
   $router_id                = "",
-  $metadata_ip              = $ipaddress,
-  $metadata_port            = "35357",
+  $metadata_port            = "9697",
+  $state_path               = "/var/lib/quantum",
   $external_network_bridge  = "br-ex",
   $handle_internal_only_routers  = "True",
   $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
@@ -46,7 +46,8 @@ class quantum::agents::l3 (
     "DEFAULT/admin_password":           value => $keystone_password;
     "DEFAULT/use_namespaces":           value => $use_namespaces;
     "DEFAULT/router_id":                value => $router_id;
-    "DEFAULT/metadata_ip":              value => $metadata_ip;
+    "DEFAULT/metadata_port":            value => $metadata_port;
+    "DEFAULT/state_path":               value => $state_path;
     "DEFAULT/external_network_bridge":  value => $external_network_bridge;
     "DEFAULT/handle_internal_only_routers":  value => $handle_internal_only_routers;
     "DEFAULT/root_helper":              value => $root_helper;

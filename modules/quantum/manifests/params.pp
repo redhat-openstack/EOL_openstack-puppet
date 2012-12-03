@@ -15,6 +15,7 @@ class quantum::params {
 
       $l3_package         = 'quantum-l3-agent'
       $l3_service         = 'quantum-l3-agent'
+      $metadata_service   = 'quantum-metadata-agent'
 
       $kernel_headers     = "linux-headers-${::kernelrelease}"
     }
