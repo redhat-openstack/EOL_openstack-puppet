@@ -47,7 +47,7 @@ class glance::api(
   $qpid_reconnect_interval_min = '0',
   $qpid_reconnect_interval_max = '0',
   $qpid_reconnect_interval = '0',
-  $qpid_heartbeat = '5',
+  $qpid_heartbeat = '60',
   $qpid_protocol = 'tcp',
   $qpid_tcp_nodelay = 'True',
 
