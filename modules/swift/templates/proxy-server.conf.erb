@@ -22,7 +22,7 @@ user = swift
 
 [pipeline:main]
 <% if auth_type == 'keystone' %>
-pipeline = catch_errors healthcheck cache ratelimit s3token authtoken keystone proxy-logging proxy-server
+pipeline = catch_errors healthcheck cache ratelimit s3token authtoken keystoneauth proxy-logging proxy-server
 <% else %>
 pipeline = catch_errors healthcheck cache ratelimit tempauth proxy-logging proxy-server
 <% end %>
@@ -255,10 +255,9 @@ use = egg:swift#name_check
 [filter:proxy-logging]
 use = egg:swift#proxy_logging
 
-[filter:keystone]
-paste.filter_factory = keystone.middleware.swift_auth:filter_factory
+[filter:keystoneauth]
+use = egg:swift#keystoneauth
 operator_roles = admin
-is_admin = True
 
 [filter:s3token]
 paste.filter_factory = keystone.middleware.s3_token:filter_factory
