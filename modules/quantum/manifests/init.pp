@@ -42,7 +42,8 @@ class quantum (
 
   $core_plugin            = "quantum.plugins.openvswitch.ovs_quantum_plugin.OVSQuantumPluginV2",
   $mac_generation_retries = 16,
-  $dhcp_lease_duration    = 120
+  $dhcp_lease_duration    = 120,
+  $lock_path                = "/var/lib/quantum/tmp"
 ) {
   include quantum::params
 
@@ -76,6 +77,7 @@ class quantum (
   quantum_config {
     "DEFAULT/verbose":    value => $log_verbose;
     "DEFAULT/debug":      value => $log_debug;
+    "DEFAULT/lock_path":  value => $lock_path;
 
     "DEFAULT/bind_host":  value => $bind_host;
     "DEFAULT/bind_port":  value => $bind_port;
