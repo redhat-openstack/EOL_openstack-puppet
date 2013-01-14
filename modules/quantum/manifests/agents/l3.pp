@@ -7,7 +7,8 @@ class quantum::agents::l3 (
   $state_path               = "/var/lib/quantum",
   $external_network_bridge  = "br-ex",
   $handle_internal_only_routers  = "True",
-  $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+  $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf",
+  $lock_path                = "/var/lib/quantum/tmp"
 ) inherits quantum {
   Package['quantum'] -> Quantum_l3_agent_config<||>
   Quantum_config<||> ~> Service["quantum-l3-service"]
@@ -51,6 +52,7 @@ class quantum::agents::l3 (
     "DEFAULT/external_network_bridge":  value => $external_network_bridge;
     "DEFAULT/handle_internal_only_routers":  value => $handle_internal_only_routers;
     "DEFAULT/root_helper":              value => $root_helper;
+    "DEFAULT/lock_path":                value => $lock_path;
   }
 
   if defined(Class["quantum::agents::ovs"]) {
