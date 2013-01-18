@@ -1,8 +1,8 @@
 # Class: common::config
 class common::config {
 
-  package { ['augeas', 'augeas-libs']:
-    ensure  => present,
+  package { ['augeas', 'augeas-libs', 'ruby-augeas']:
+    ensure  => latest,
   }
 
   file { '/usr/share/augeas/lenses/pythonpaste.aug':
@@ -11,7 +11,7 @@ class common::config {
     group   => 'root',
     mode    => 644,
     source  => 'puppet:///modules/common/pythonpaste.aug',
-    require  => Package['augeas-libs']
+    require  => [Package['augeas-libs'], Package['augeas'], Package['ruby-augeas']]
   }
 
 }
