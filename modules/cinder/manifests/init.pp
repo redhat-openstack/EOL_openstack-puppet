@@ -33,7 +33,7 @@ class cinder(
 
   $logdir = '/var/log/cinder',
   $state_path = '/var/lib/cinder',
-  $lock_path = '/var/lock/cinder',
+  $lock_path = '/var/lib/cinder/tmp',
 
   $volumes_dir = '/var/lib/cinder/volumes',
   $iscsi_helper = 'tgtadm',
