@@ -3,7 +3,7 @@
 #
 #
 class cinder::client(
-  $ensure='present',
+  $ensure='present'
 ) {
 
   package { 'python-cinderclient':
