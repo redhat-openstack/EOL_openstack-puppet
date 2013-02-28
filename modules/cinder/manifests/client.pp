@@ -7,7 +7,7 @@ class cinder::client(
 ) {
 
   package { 'python-cinderclient':
-    ensure => $ensure,
+    ensure => $ensure
   }
 
 }
