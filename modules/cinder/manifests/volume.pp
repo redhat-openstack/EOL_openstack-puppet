@@ -52,7 +52,7 @@ class cinder::volume(
   exec { "daemon-reload":
     command => "service ${service_name} restart",
     refreshonly => true,
-    path    => "/usr/sbin",
+    path    => "/sbin",
     subscribe   => [File[$tgtd_service_file], File['/etc/tgt/targets.conf']]
   }
 
