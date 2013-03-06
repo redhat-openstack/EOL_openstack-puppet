@@ -50,7 +50,8 @@ class cinder::volume(
   }
 
   exec { "daemon-reload":
-    command => "systemctl --system daemon-reload",
+    #command => "systemctl --system daemon-reload",
+    command => "service ${service_name} restart",
     refreshonly => true,
     path    => "/usr/bin",
     subscribe   => [File[$tgtd_service_file], File['/etc/tgt/targets.conf']]
