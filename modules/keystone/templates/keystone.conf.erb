@@ -49,6 +49,7 @@ syslog_log_facility = <%= syslog_facility %>
 # onready = systemd-notify --ready
 # or a module with notify() method:
 # onready = keystone.common.systemd
+onready = <%= onready %>
 
 [sql]
 connection = <%= sql_connection %>
@@ -106,11 +107,13 @@ ca_password = <%= signing_ca_password %>
 # user_tree_dn = ou=Users,dc=example,dc=com
 # user_objectclass = inetOrgPerson
 # user_id_attribute = cn
+# user_name_attribute = sn
 
 # tenant_tree_dn = ou=Groups,dc=example,dc=com
 # tenant_objectclass = groupOfNames
 # tenant_id_attribute = cn
 # tenant_member_attribute = member
+# tenant_name_attribute = ou
 
 # role_tree_dn = ou=Roles,dc=example,dc=com
 # role_objectclass = organizationalRole

@@ -12,6 +12,7 @@ class keystone::api(
   $syslog_facility = 'LOG_LOCAL0',
   $sql_connection = 'sqlite:////var/lib/keystone/keystone.sqlite',
   $sql_idle_timeout = '200',
+  $onready = '',
   $identity_driver = 'keystone.identity.backends.sql.Identity',
   $catalog_driver = 'keystone.catalog.backends.templated.TemplatedCatalog',
   $catalog_template_file = '/etc/keystone/default_catalog.templates',
