@@ -26,18 +26,6 @@ class cinder::volume(
     #subscribe => File["/etc/cinder/cinder.conf"]
   }
 
-  #NOTE: This works around a startup issue w/ existing tgtd daemon and
-  # the Fedora systemd config
-  $tgtd_service_file = '/usr/lib/systemd/system/tgtd.service'
-  file { $tgtd_service_file:
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => 644,
-    source  => 'puppet:///modules/cinder/tgtd.service',
-    require => Package["openstack-cinder"]
-  }
-
   #FIXME: Ideally we could use /etc/tgt/conf.d/cinder.conf but there
   # is an issue w/ it using wildcards. So we use targets.conf instead.
   file { '/etc/tgt/targets.conf':
@@ -49,17 +37,10 @@ class cinder::volume(
     require => Package["openstack-cinder"]
   }
 
-  exec { "daemon-reload":
-    command => "systemctl --system daemon-reload",
-    refreshonly => true,
-    path    => "/usr/bin",
-    subscribe   => [File[$tgtd_service_file], File['/etc/tgt/targets.conf']]
-  }
-
   service {'tgtd':
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => [Package["openstack-cinder"], Exec['daemon-reload']],
+    require => [Package["openstack-cinder"], File['/etc/tgt/targets.conf']]
   }
 
 }
