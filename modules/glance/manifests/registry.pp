@@ -86,6 +86,7 @@ class glance::registry(
     hasstatus  => true,
     hasrestart => true,
     subscribe  => [File["/etc/glance/glance-registry.conf"], 
+                   Augeas['set_glance_registry_auth_version'],
                    Augeas['set_glance_registry_auth_host'],
                    Augeas['set_glance_registry_auth_port'],
                    Augeas['set_glance_registry_auth_protocol'],

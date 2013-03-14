@@ -1,7 +1,7 @@
 class glance(
   $package_ensure = 'present',
   $keystone_auth_host = '127.0.0.1',
-  $keystone_auth_version = '',
+  $keystone_auth_version = 'v2.0',
   $keystone_auth_port = '35357',
   $keystone_auth_protocol = 'http',
   $keystone_auth_uri = 'http://127.0.0.1:5000/',

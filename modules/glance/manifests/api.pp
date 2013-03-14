@@ -142,6 +142,7 @@ class glance::api(
     hasstatus  => true,
     hasrestart => true,
     subscribe  => [File["/etc/glance/glance-api.conf"],
+                   Augeas['set_glance_auth_version'],
                    Augeas['set_glance_auth_host'],
                    Augeas['set_glance_auth_port'],
                    Augeas['set_glance_auth_protocol'],
