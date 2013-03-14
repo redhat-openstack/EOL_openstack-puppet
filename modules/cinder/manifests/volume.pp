@@ -62,7 +62,7 @@ class cinder::volume(
       subscribe   => File[$tgtd_service_file]
     }
 
-    Exec['daemon-reload'] -> Service['cinder-volume']
+    Exec['daemon-reload'] -> Service['tgtd']
 
   }
 
