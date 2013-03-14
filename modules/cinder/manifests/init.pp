@@ -35,7 +35,7 @@ class cinder(
   $state_path = '/var/lib/cinder',
   $lock_path = '/var/lib/cinder/tmp',
 
-  $volumes_dir = '/var/lib/cinder/volumes',
+  $volumes_dir = '/etc/cinder/volumes',
   $iscsi_helper = 'tgtadm',
 
   $verbose = false
