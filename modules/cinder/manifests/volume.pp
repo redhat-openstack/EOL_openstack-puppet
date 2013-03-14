@@ -26,21 +26,19 @@ class cinder::volume(
     #subscribe => File["/etc/cinder/cinder.conf"]
   }
 
-  #FIXME: Ideally we could use /etc/tgt/conf.d/cinder.conf but there
-  # is an issue w/ it using wildcards. So we use targets.conf instead.
-  file { '/etc/tgt/targets.conf':
+  file { '/etc/tgt/conf.d/cinder.conf':
     ensure  => present,
     owner   => 'root',
     group   => 'root',
     mode    => 600,
-    content  => template('cinder/targets.conf.erb'),
+    content  => template('cinder/cinder-tgt.conf.erb'),
     require => Package["openstack-cinder"]
   }
 
   service {'tgtd':
     ensure  => $service_ensure,
     enable  => $enabled,
-    require => [Package["openstack-cinder"], File['/etc/tgt/targets.conf']]
+    require => [Package["openstack-cinder"], File['/etc/tgt/conf.d/cinder.conf']]
   }
 
   if ($::operatingsystem == 'Fedora') {
