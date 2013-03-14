@@ -43,4 +43,29 @@ class cinder::volume(
     require => [Package["openstack-cinder"], File['/etc/tgt/targets.conf']]
   }
 
+  if ($::operatingsystem == 'Fedora') {
+
+    #NOTE: This works around a startup issue w/ existing tgtd daemon and
+    # the Fedora systemd config
+    $tgtd_service_file = '/usr/lib/systemd/system/tgtd.service'
+    file { $tgtd_service_file:
+      ensure  => present,
+      owner   => 'root',
+      group   => 'root',
+      mode    => 644,
+      source  => 'puppet:///modules/cinder/tgtd.service',
+      require => Package["openstack-cinder"]
+    }
+
+    exec { "daemon-reload":
+      command => "systemctl --system daemon-reload",
+      refreshonly => true,
+      path    => "/usr/bin",
+      subscribe   => File[$tgtd_service_file]
+    }
+
+    Exec['daemon-reload'] -> Service['cinder-volume']
+
+  }
+
 }
