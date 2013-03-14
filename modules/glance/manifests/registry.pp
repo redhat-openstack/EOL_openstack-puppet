@@ -18,6 +18,11 @@ class glance::registry(
   $registry_flavor = ''
 ) inherits glance {
 
+  glance::paste_config { "set_glance_registry_auth_version":
+    key => "glance-registry-paste.ini/filter:authtoken/auth_version",
+    value => "$keystone_auth_version"
+  }
+
   glance::paste_config { "set_glance_registry_auth_host":
     key => "glance-registry-paste.ini/filter:authtoken/auth_host",
     value => "$keystone_auth_host"

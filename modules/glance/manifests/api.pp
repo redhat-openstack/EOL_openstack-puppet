@@ -82,6 +82,11 @@ class glance::api(
   $api_flavor = '',
 ) inherits glance {
 
+  glance::paste_config { "set_glance_auth_version":
+    key => "glance-api-paste.ini/filter:authtoken/auth_version",
+    value => "$keystone_auth_version"
+  }
+
   glance::paste_config { "set_glance_auth_host":
     key => "glance-api-paste.ini/filter:authtoken/auth_host",
     value => "$keystone_auth_host"
