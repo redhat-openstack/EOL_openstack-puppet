@@ -79,7 +79,7 @@ class nova(
   $service_quantum_metadata_proxy = 'False',
   $quantum_metadata_proxy_shared_secret= '',
 
-  $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtBridgeDriver'
+  $libvirt_vif_driver = 'nova.virt.libvirt.vif.LibvirtGenericVIFDriver'
 ) {
 
   Package['openstack-nova-common'] -> Nova_config<| |> -> File['/etc/nova/nova.conf']
