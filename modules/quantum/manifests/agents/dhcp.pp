@@ -4,8 +4,7 @@ class quantum::agents::dhcp (
   $interface_driver   = "quantum.agent.linux.interface.OVSInterfaceDriver",
   $dhcp_driver        = "quantum.agent.linux.dhcp.Dnsmasq",
   $use_namespaces     = "True",
-  $resync_interval    = "30",
-  $root_helper        = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+  $resync_interval    = "30"
 ) inherits quantum {
 
   Package['quantum'] -> Quantum_dhcp_agent_config<||>
@@ -23,7 +22,6 @@ class quantum::agents::dhcp (
     "DEFAULT/interface_driver":   value => $interface_driver;
     "DEFAULT/dhcp_driver":        value => $dhcp_driver;
     "DEFAULT/use_namespaces":     value => $use_namespaces;
-    "DEFAULT/root_helper":        value => $root_helper;
   }
 
   if $enabled {

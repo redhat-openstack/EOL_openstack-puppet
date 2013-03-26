@@ -8,8 +8,7 @@ class quantum::plugins::ovs (
   $enable_tunneling     = "False",
   $tunnel_bridge        = "br-tun",
   $tunnel_id_ranges     = "",
-  $local_ip             = "",
-  $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+  $local_ip             = ""
 
 
 ) inherits quantum {
@@ -30,7 +29,6 @@ class quantum::plugins::ovs (
 
   quantum_plugin_ovs {
     'DATABASE/sql_connection': value => $sql_connection;
-    'AGENT/root_helper': value => $root_helper;
   }
 
   quantum_plugin_ovs {

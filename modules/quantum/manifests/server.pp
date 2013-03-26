@@ -1,6 +1,7 @@
 class quantum::server (
   $enabled = true,
   $log_file = "/var/log/quantum/server.log",
+  $root_helper        = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
 ) inherits quantum {
 
   Package["quantum"] -> Quantum_api_config<||>
@@ -17,9 +18,9 @@ class quantum::server (
     fail("Invalid db connection ${sql_connection}")
   }
 
-  #quantum_config {
-    #"DEFAULT/log_file":  value => $log_file
-  #}
+  quantum_config {
+    "AGENT/root_helper":    value => $root_helper;
+  }
 
   quantum_api_config {
     "filter:authtoken/auth_host": value => $auth_host;

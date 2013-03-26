@@ -3,8 +3,7 @@ class quantum::plugins::linuxbridge (
   $tenant_network_type  = "local",
   $network_vlan_ranges  = "",
   $polling_interval     = "2",
-  $reconnect_interval   = "2",
-  $root_helper          = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+  $reconnect_interval   = "2"
 
 ) inherits quantum {
 
@@ -25,7 +24,6 @@ class quantum::plugins::linuxbridge (
   quantum_plugin_linuxbridge {
     'DATABASE/sql_connection': value => $sql_connection;
     'DATABASE/reconnect_interval': value => $reconnect_interval;
-    'AGENT/root_helper': value => $root_helper;
     'AGENT/polling_interval': value => $polling_interval;
     "VLANS/network_vlan_ranges":  value => $network_vlan_ranges;
     "VLANS/tenant_network_type":  value => $tenant_network_type;

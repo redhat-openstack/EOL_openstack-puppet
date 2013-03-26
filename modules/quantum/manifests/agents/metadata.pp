@@ -3,8 +3,7 @@ class quantum::agents::metadata (
   $nova_metadata_ip              = $ipaddress,
   $nova_metadata_port            = 8775,
   $metadata_proxy_shared_secret  = '',
-  $state_path                    = '/var/lib/quantum',
-  $root_helper              = "sudo /usr/bin/quantum-rootwrap /etc/quantum/rootwrap.conf"
+  $state_path                    = '/var/lib/quantum'
 ) inherits quantum {
   Package['quantum'] -> Quantum_metadata_agent_config<||>
   Quantum_config<||> ~> Service["quantum-metadata-service"]
@@ -20,7 +19,6 @@ class quantum::agents::metadata (
     "DEFAULT/admin_password":               value => $keystone_password;
     "DEFAULT/nova_metadata_ip":             value => $nova_metadata_ip;
     "DEFAULT/nova_metadata_port":           value => $nova_metadata_port;
-    "DEFAULT/root_helper":                  value => $root_helper;
     "DEFAULT/metadata_proxy_shared_secret": value => $metadata_proxy_shared_secret;
   }
 
