@@ -3,8 +3,8 @@ describe 'swift::ringbuilder::create' do
 
   let :default_params do
     {:part_power => 18,
-    :replicas => 5,
-    :min_part_hours => 1}
+    :replicas => 3,
+    :min_part_hours => 24}
   end
 
   describe 'with allowed titles' do
@@ -31,7 +31,7 @@ describe 'swift::ringbuilder::create' do
 
             it { should contain_exec("create_#{type}").with(
               {:command => "swift-ring-builder /etc/swift/#{type}.builder create #{param_hash[:part_power]} #{param_hash[:replicas]} #{param_hash[:min_part_hours]}",
-               :path    => ['/usr/bin'],
+               :path    => '/usr/bin',
                :creates => "/etc/swift/#{type}.builder" }
             )}
           end
@@ -44,9 +44,7 @@ describe 'swift::ringbuilder::create' do
       'invalid'
     end
     it 'should raise an error' do
-      expect do
-        subject
-      end.should raise_error(Puppet::Error)
+      expect { subject }.to raise_error(Puppet::Error)
     end
   end
 

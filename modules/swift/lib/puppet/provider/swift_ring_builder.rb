@@ -8,20 +8,19 @@ class Puppet::Provider::SwiftRingBuilder < Puppet::Provider
     end
   end
 
-  def self.ring
-    @my_ring ||= lookup_ring
-  end
 
   def self.lookup_ring
     object_hash = {}
     if File.exists?(builder_file_path)
       if rows = swift_ring_builder(builder_file_path).split("\n")[4..-1]
         rows.each do |row|
-          if row =~ /^\s+(\d+)\s+(\d+)\s+(\S+)\s+(\d+)\s+(\S+)\s+(\d+\.\d+)\s+(\d+)\s+(-?\d+\.\d+)\s+(\S*)$/
-            object_hash["#{$3}:#{$4}"] = {
+          # The regex below parses output like this:
+          # Devices:    id  region  zone      ip address  port      name weight partitions balance meta
+          #              0     1     2       127.0.0.1  6022         2   1.00     262144   0.00 
+          if row =~ /^\s*(\d+)\s+\d+\s+(\d+)\s+(\S+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d++)\s+(-?\d+\.\d+)\s*(\S*)/
+            object_hash["#{$3}:#{$4}/#{$5}"] = {
               :id          => $1,
               :zone        => $2,
-              :device_name => $5,
               :weight      => $6,
               :partitions  => $7,
               :balance     => $8,
@@ -49,13 +48,13 @@ class Puppet::Provider::SwiftRingBuilder < Puppet::Provider
   end
 
   def create
-    [:zone, :device_name, :weight].each do |param|
+    [:zone, :weight].each do |param|
       raise(Puppet::Error, "#{param} is required") unless resource[param]
     end
     swift_ring_builder(
       builder_file_path,
       'add',
-      "z#{resource[:zone]}-#{resource[:name]}/#{resource[:device_name]}",
+      "z#{resource[:zone]}-#{resource[:name]}",
       resource[:weight]
     )
   end
@@ -75,14 +74,6 @@ class Puppet::Provider::SwiftRingBuilder < Puppet::Provider
   # TODO - is updating the zone supported?
   def zone=(zone)
     Puppet.warning('Setting zone is not yet supported, I am not even sure if it is supported')
-  end
-
-  def device_name
-    ring[resource[:name]][:device_name]
-  end
-
-  def device_name=(name)
-    Puppet.warning('I think it makes sense to set the name, it is just not yet supported')
   end
 
   def weight

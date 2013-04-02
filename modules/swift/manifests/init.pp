@@ -7,9 +7,6 @@
 # [*package_ensure*] The ensure state for the swift package.
 #   Optional. Defaults to present.
 #
-# [*swift_ssh_key*] NOT YET IMPLEMENTED. I am not entirely sure what
-#  this key is intended to be used for.
-#
 # == Dependencies
 #
 #   Class['ssh::server::install']
@@ -24,18 +21,26 @@
 #
 class swift(
   $swift_hash_suffix,
-#  $swift_ssh_key,
   $package_ensure = 'present'
 ) {
 
-  # maybe I should just install ssh?
+  include swift::params
+
   Class['ssh::server::install'] -> Class['swift']
 
-  package { 'openstack-swift':
+  if !defined(Package['swift']) {
+    package { 'swift':
+      name   => $::swift::params::package_name,
+      ensure => $package_ensure,
+    }
+  }
+
+  package { 'swiftclient':
+    name   => $::swift::params::client_package,
     ensure => $package_ensure,
   }
 
-  File { owner => 'swift', group => 'swift', require => Package['openstack-swift'] }
+  File { owner => 'swift', group => 'swift', require => Package['swift'] }
 
   file { '/home/swift':
     ensure  => directory,
@@ -46,7 +51,13 @@ class swift(
     ensure => directory,
     mode   => 2770,
   }
-
+  user {'swift':
+    ensure => present,
+  }
+  file { '/var/lib/swift':
+    ensure => directory,
+    owner => 'swift'
+  }
   file { '/var/run/swift':
     ensure => directory,
   }
@@ -57,30 +68,8 @@ class swift(
     content => template('swift/swift.conf.erb'),
   }
 
-#  if ($swift_ssh_key) {
-#    if $swift_ssh_key !~ /^(ssh-...) +([^ ]*) *([^ \n]*)/ {
-#      err("Can't parse swift_ssh_key")
-#      notify { "Can't parse public key file $name on the keymaster: skipping ensure => $e
-#nsure": }
-#    } else {
-#      $keytype = $1
-#      $modulus = $2
-#      $comment = $3
-#      ssh_authorized_key { $comment:
-#        ensure  => "present",
-#        user    => "swift",
-#        type    => $keytype,
-#        key     => $modulus,
-#        options => $options ? { "" => undef, default => $options },
-#        require => File["/home/swift"]
-#      }
-#    }
-#  }
-# does swift need an ssh key?
-# they are adding one in the openstack modules
-
-#
-# I do not understand how to configure the rings
-# or why rings would be configured on the proxy?
+  file { '/var/cache/swift':
+    ensure => directory,
+  }
 
 }

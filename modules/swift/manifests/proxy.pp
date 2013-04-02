@@ -1,27 +1,32 @@
+#
+# TODO - assumes that proxy server is always a memcached server
+#
+# TODO - the full list of all things that can be configured is here
+#  https://github.com/openstack/swift/tree/master/swift/common/middleware
+#
 # Installs and configures the swift proxy node.
 #
 # [*Parameters*]
 #
-# [*allow_account_management*]
-# [*account_autocreate*] Rather accounts should automatically be created.
-#  I think this may be tempauth specific
 # [*proxy_local_net_ip*] The address that the proxy will bind to.
-#   Optional. Defaults to 0.0.0.0
-# [*proxy_port*] Port that the swift proxy service will bind to.
-#   Optional. Defaults to 11211
-# [*auth_type*] - Type of authorization to use.
-#  valid values are tempauth, swauth, and keystone.
-#  Optional. Defaults to tempauth.
+#   Required.
+# [*port*] The port to which the proxy server will bind.
+#   Optional. Defaults to 8080.
+# [*pipeline*] The list of elements of the swift proxy pipeline.
+#   Currently supports healthcheck, cache, proxy-server, and
+#   one of the following auth_types: tempauth, swauth, keystone.
+#   Each of the specified elements also need to be declared externally
+#   as a puppet class with the exception of proxy-server.
+#   Optional. Defaults to ['healthcheck', 'cache', 'tempauth', 'proxy-server']
+# [*workers*] Number of threads to process requests.
+#  Optional. Defaults to the number of processors.
+# [*allow_account_management*]
+#   Rather or not requests through this proxy can create and
+#   delete accounts. Optional. Defaults to true.
+# [*account_autocreate*] Rather accounts should automatically be created.
+#  Has to be set to true for tempauth. Optional. Defaults to true.
 # [*package_ensure*] Ensure state of the swift proxy package.
 #   Optional. Defaults to present.
-#
-# == sw auth specific configuration
-# [*swauth_endpoint*]
-# [*swauth_super_admin_user*]
-#
-# == Dependencies
-#
-#   Class['memcached']
 #
 # == Examples
 #
@@ -34,61 +39,78 @@
 # Copyright 2011 Puppetlabs Inc, unless otherwise noted.
 #
 class swift::proxy(
+  $proxy_local_net_ip,
+  $port = '8080',
+  $pipeline = ['healthcheck', 'cache', 'tempauth', 'proxy-server'],
+  $workers = $::processorcount,
   $allow_account_management = true,
-  $account_autocreate = false,
-  $proxy_local_net_ip = '0.0.0.0',
-  $workers = 1,
-  $proxy_port = '11211',
-  $auth_type = 'tempauth',
-  $swauth_endpoint = '127.0.0.1',
-  $swauth_super_admin_key = 'swauthkey',
-  $package_ensure = 'present',
-  $keystone_auth_host = '127.0.0.1',
-  $keystone_auth_port = '35357',
-  $keystone_auth_protocol = 'http',
-  $keystone_auth_uri = 'http://127.0.0.1:5000/',
-  $keystone_admin_user = 'swift',
-  $keystone_admin_password = 'SERVICE_PASSWORD',
-  $keystone_admin_tenant_name = 'service',
-  $keystone_signing_dir = '/etc/swift/keystone-signing'
-) inherits swift {
+  $account_autocreate = true,
+  $log_level = 'INFO',
+  $package_ensure = 'present'
+) {
 
-  Class['memcached'] -> Class['swift::proxy']
+  include 'swift::params'
+  include 'concat::setup'
 
-  validate_re($auth_type, 'tempauth|swauth|keystone')
+  validate_bool($account_autocreate)
+  validate_bool($allow_account_management)
+  validate_array($pipeline)
 
-  package { 'openstack-swift-proxy':
+  if(member($pipeline, 'tempauth')) {
+    $auth_type = 'tempauth'
+  } elsif(member($pipeline, 'swauth')) {
+    $auth_type = 'swauth'
+  } elsif(member($pipeline, 'keystone')) {
+    $auth_type = 'keystone'
+  } else {
+    warning('no auth type provided in the pipeline')
+  }
+
+  if(! member($pipeline, 'proxy-server')) {
+    warning("swift storage server ${type} must specify ${type}-server")
+  }
+
+  if($auth_type == 'tempauth' and ! $account_autocreate ){
+    fail("\$account_autocreate must be set to true when auth type is tempauth")
+  }
+
+  package { 'swift-proxy':
+    name   => $::swift::params::proxy_package_name,
     ensure => $package_ensure,
   }
 
-  if($auth_type == 'swauth') {
-    package { 'python-swauth':
-      ensure  => $package_ensure,
-      before  => Package['openstack-swift-proxy'],
-    }
-  }
-
-  file { "/etc/swift/proxy-server.conf":
-    ensure  => present,
+  concat { '/etc/swift/proxy-server.conf':
     owner   => 'swift',
     group   => 'swift',
-    mode    => 0660,
+    mode    => '0660',
+    require => Package['swift-proxy'],
+  }
+
+  $required_classes = split(
+    inline_template(
+      "<%=
+          (pipeline - ['proxy-server']).collect do |x|
+            'swift::proxy::' + x
+          end.join(',')
+      %>"), ',')
+
+  # you can now add your custom fragments at the user level
+  concat::fragment { 'swift_proxy':
+    target  => "/etc/swift/proxy-server.conf",
     content => template('swift/proxy-server.conf.erb'),
-    require => Package['openstack-swift-proxy'],
+    order   => '00',
+    # require classes for each of the elements of the pipeline
+    # this is to ensure the user gets reasonable elements if he
+    # does not specify the backends for every specified element of
+    # the pipeline
+    before  => Class[$required_classes],
   }
 
-  file { $keystone_signing_dir:
-    ensure  => directory,
-    owner   => 'swift',
-    group   => 'swift',
-    mode    => 770,
-    require => Package['openstack-swift-proxy']
-  }
-
-  service { 'openstack-swift-proxy':
+  service { 'swift-proxy':
+    name      => $::swift::params::proxy_service_name,
     ensure    => running,
     enable    => true,
-    subscribe => File['/etc/swift/proxy-server.conf'],
+    provider  => $::swift::params::service_provider,
+    subscribe => Concat['/etc/swift/proxy-server.conf'],
   }
-
 }

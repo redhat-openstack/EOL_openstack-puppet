@@ -8,7 +8,7 @@ describe 'swift::ringbuilder::rebalance' do
         end
         it { should contain_exec("rebalance_#{type}").with(
           {:command     => "swift-ring-builder /etc/swift/#{type}.builder rebalance",
-           :path        => ['/usr/bin'],
+           :path        => '/usr/bin',
            :refreshonly => true}
         )}
       end
@@ -19,9 +19,7 @@ describe 'swift::ringbuilder::rebalance' do
       'invalid'
     end
     it 'should raise an error' do
-      expect do
-        subject
-      end.should raise_error(Puppet::Error)
+      expect { subject }.to raise_error(Puppet::Error)
     end
   end
 

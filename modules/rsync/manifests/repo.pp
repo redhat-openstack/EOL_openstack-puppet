@@ -3,24 +3,21 @@
 # This module creates a rsync repository
 #
 # Requires:
-#   class generic
 #   class rsync::server
 #
 class rsync::repo {
 
-    include generic
-    include rsync::server
+  include rsync::server
 
-    $base = "/data/rsync"
+  $base = '/data/rsync'
 
-    file { "$base":
-        ensure  => directory,
-        require => File["/data"],
-    } # file
+  file { $base:
+    ensure  => directory,
+  }
 
-    # setup default rsync repository
-    rsync::server::module{ "repo":
-        path    => $base,
-        require => File["$base"],
-    } # rsync::server::module
-} # class rsync::repo
+  # setup default rsync repository
+  rsync::server::module { 'repo':
+    path    => $base,
+    require => File[$base],
+  }
+}

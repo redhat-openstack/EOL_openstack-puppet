@@ -4,21 +4,21 @@ describe 'swift::proxy' do
 
   describe 'without memcached being included' do
     it 'should raise an error' do
-      expect do
-        subject
-      end.should raise_error(Puppet::Error)
+      expect { subject }.to raise_error(Puppet::Error)
     end
   end
 
   # set os so memcache will not fail
   let :facts do
     {:operatingsystem => 'Ubuntu',
-     :processorcount  => 1
+     :osfamily        => 'Debian',
+     :processorcount  => 1,
+     :concat_basedir  => '/var/lib/puppet/concat',
     }
   end
 
-  let :fixture_dir do
-    File.join(File.dirname(__FILE__), '..', 'fixtures')
+  let :fragment_path do
+    "/var/lib/puppet/concat/_etc_swift_proxy-server.conf/fragments/00_swift_proxy"
   end
 
   describe 'with proper dependencies' do
@@ -29,18 +29,23 @@ describe 'swift::proxy' do
        class { 'ssh::server::install': }"
     end
 
-    describe 'with default parameters' do
+    describe 'without the proxy local network ip address being specified' do
+      it "should fail" do
+        expect { subject }.to raise_error(Puppet::Error, /Must pass proxy_local_net_ip/)
+      end
+    end
 
-      let :config_file do
-        File.join(fixture_dir, 'default_proxy_server')
+    describe 'when proxy_local_net_ip is set' do
+
+      let :params do
+        {:proxy_local_net_ip => '127.0.0.1'}
       end
 
-      it { should contain_package('openstack-swift-proxy').with_ensure('present') }
-      it { should_not contain_package('python-swauth') }
-      it { should contain_service('openstack-swift-proxy').with(
+      it { should contain_service('swift-proxy').with(
         {:ensure    => 'running',
+         :provider  => 'upstart',
          :enable    => true,
-         :subscribe => 'File[/etc/swift/proxy-server.conf]'
+         :subscribe => 'Concat[/etc/swift/proxy-server.conf]'
         }
       )}
       it { should contain_file('/etc/swift/proxy-server.conf').with(
@@ -48,58 +53,77 @@ describe 'swift::proxy' do
          :owner   => 'swift',
          :group   => 'swift',
          :mode    => '0660',
-         :content => File.read(config_file),
-         :require => 'Package[openstack-swift-proxy]'
         }
       )}
-      # TODO this resource should just be here temporarily until packaging
-      # is fixed
-      it { should contain_file('/etc/init/swift-proxy.conf') }
 
-    end
-
-    describe 'when using swauth' do
-
-      let :params do
-        {:auth_type => 'swauth' }
+      it 'should build the header file with all of the default contents' do
+        verify_contents(subject, fragment_path,
+          [
+            '[DEFAULT]',
+            'bind_port = 8080',
+            "workers = #{facts[:processorcount]}",
+            'user = swift',
+            'log_level = INFO',
+            '[pipeline:main]',
+            'pipeline = healthcheck cache tempauth proxy-server',
+            '[app:proxy-server]',
+            'use = egg:swift#proxy',
+            'allow_account_management = true',
+            'account_autocreate = true'
+          ]
+        )
       end
+      it { should contain_concat__fragment('swift_proxy').with_before(
+        [
+          'Class[Swift::Proxy::Healthcheck]',
+          'Class[Swift::Proxy::Cache]',
+          'Class[Swift::Proxy::Tempauth]'
+        ]
+      )}
 
-      describe 'with defaults' do
-
-        let :config_file do
-          File.join(fixture_dir, 'swauth_default_proxy_server')
-        end
-
-        it { should contain_package('python-swauth').with(
-          {:ensure => 'present',
-           :before => 'Package[openstack-swift-proxy]'
-          }
-        )}
-        it { should contain_file('/etc/swift/proxy-server.conf').with(
-          {:content => File.read(config_file)}
-        )}
-      end
-
-      describe 'with parameter overrides' do
-
+      describe 'when more parameters are set' do
         let :params do
-          {:auth_type => 'swauth',
-           :swauth_endpoint => '10.0.0.1',
-           :swauth_super_admin_key => 'key'
+          {
+           :proxy_local_net_ip => '10.0.0.2',
+           :port => '80',
+           :workers => 3,
+           :pipeline  => ['swauth', 'proxy-server'],
+           :allow_account_management => false,
+           :account_autocreate => false,
+           :log_level          => 'DEBUG'
           }
         end
-        let :config_file do
-          File.join(fixture_dir, 'swauth_overrides_proxy_server')
+        it 'should build the header file with provided values' do
+          verify_contents(subject, fragment_path,
+            [
+              '[DEFAULT]',
+              'bind_port = 80',
+              "workers = 3",
+              'user = swift',
+              'log_level = DEBUG',
+              '[pipeline:main]',
+              'pipeline = swauth proxy-server',
+              '[app:proxy-server]',
+              'use = egg:swift#proxy',
+              'allow_account_management = false',
+              'account_autocreate = false'
+            ]
+          )
         end
-
-        it { should contain_file('/etc/swift/proxy-server.conf').with(
-          {:content => File.read(config_file)}
+        it { should contain_concat__fragment('swift_proxy').with_before(
+          'Class[Swift::Proxy::Swauth]'
         )}
-
       end
 
+      describe 'when supplying bad values for parameters' do
+        [:account_autocreate, :allow_account_management].each do |param|
+          it "should fail when #{param} is not passed a boolean" do
+            params[param] = 'false'
+            expect { subject }.to raise_error(Puppet::Error, /is not a boolean/)
+          end
+        end
+      end
     end
 
   end
-
 end
