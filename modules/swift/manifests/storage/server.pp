@@ -29,15 +29,37 @@ define swift::storage::server(
       #warning("swift storage server ${type} must specify ${type}-server")
   #}
 
-  include "swift::storage::$type"
-  include 'concat::setup'
-
   validate_re($name, '^\d+$')
   validate_re($type, '^object|container|account$')
   validate_array($pipeline)
   # TODO - validate that name is an integer
-
   $bind_port = $name
+
+  include 'concat::setup'
+
+  swift::storage::generic { $type:
+    bind_port => $bind_port,
+    package_ensure => $package_ensure,
+  }
+
+  # Not tested in other distros, safety measure
+  if $operatingsystem == 'Ubuntu' {
+
+    service { "swift-$type-reaper":
+      ensure    => running,
+      enable    => true,
+      provider  => $::swift::params::service_provider,
+      require   => Package["swift-$type"],
+    }
+
+    service { "swift-$type-auditor":
+      ensure    => running,
+      enable    => true,
+      provider  => $::swift::params::service_provider,
+      require   => Package["swift-$type"],
+    }
+
+  }
 
   rsync::server::module { "${type}":
     path => $devices,
