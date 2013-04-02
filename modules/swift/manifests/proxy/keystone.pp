@@ -23,7 +23,7 @@ class swift::proxy::keystone(
   $cache               = 'swift.cache'
 ) {
 
-  require 'keystone::python'
+  #require 'keystone::python'
 
   concat::fragment { 'swift_keystone':
     target  => '/etc/swift/proxy-server.conf',
