@@ -184,6 +184,7 @@ class keystone(
     # created
     exec { 'keystone-manage db_sync':
       path        => '/usr/bin',
+      user        => 'keystone',
       refreshonly => true,
       notify      => Service['keystone'],
       subscribe   => Package['keystone'],
