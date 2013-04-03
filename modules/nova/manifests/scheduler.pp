@@ -1,23 +1,18 @@
-class nova::scheduler( $enabled=true ) {
+#
+# install nova scheduler
+#
+class nova::scheduler(
+  $enabled        = false,
+  $ensure_package = 'present'
+) {
 
-  Exec['post-nova_config'] ~> Service['nova-scheduler']
-  Exec['nova-db-sync'] -> Service['nova-scheduler']
+  include nova::params
 
-  if $enabled {
-    $service_ensure = 'running'
-  } else {
-    $service_ensure = 'stopped'
-  }
-
-  package {'openstack-nova-scheduler':
-    ensure  => present
-  }
-
-  service { "nova-scheduler":
-    name => 'openstack-nova-scheduler',
-    ensure  => $service_ensure,
-    enable  => $enabled,
-    require => Package["openstack-nova-scheduler"]
+  nova::generic_service { 'scheduler':
+    enabled        => $enabled,
+    package_name   => $::nova::params::scheduler_package_name,
+    service_name   => $::nova::params::scheduler_service_name,
+    ensure_package => $ensure_package,
   }
 
 }

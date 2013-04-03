@@ -1,97 +1,101 @@
+#
+# installs and configures nova api service
+#
+# * admin_password
+# * enabled
+# * ensure_package
+# * auth_strategy
+# * auth_host
+# * auth_port
+# * auth_protocol
+# * admin_tenant_name
+# * admin_user
+# * enabled_apis
+#
 class nova::api(
-  $enabled=true,
-  $keystone_enabled = false,
-  $keystone_auth_host = '127.0.0.1',
-  $keystone_auth_port = '35357',
-  $keystone_auth_protocol = 'http',
-  $keystone_auth_uri = 'http://127.0.0.1:5000/',
-  $keystone_admin_user = 'nova',
-  $keystone_admin_password = 'SERVICE_PASSWORD',
-  $keystone_admin_tenant_name = 'service',
-  $keystone_signing_dir = '/var/lib/nova/keystone-signing'
+  $admin_password,
+  $enabled           = false,
+  $ensure_package    = 'present',
+  $auth_strategy     = 'keystone',
+  $auth_host         = '127.0.0.1',
+  $auth_port         = 35357,
+  $auth_protocol     = 'http',
+  $admin_tenant_name = 'services',
+  $admin_user        = 'nova',
+  $api_bind_address  = '0.0.0.0',
+  $enabled_apis      = 'ec2,osapi_compute,metadata',
+  $volume_api_class  = 'nova.volume.cinder.API',
+  $sync_db           = true
 ) {
 
-  Exec['post-nova_config'] ~> Service['nova-api']
-  Exec['nova-db-sync'] ~> Service['nova-api']
+  include nova::params
+  require keystone::python
 
-  package {'openstack-nova-api':
-    ensure  => present
+  Package<| title == 'nova-api' |> -> Nova_paste_api_ini<| |>
+
+  Package<| title == 'nova-common' |> -> Class['nova::api']
+
+  Nova_paste_api_ini<| |> ~> Exec['post-nova_config']
+  Nova_paste_api_ini<| |> ~> Service['nova-api']
+
+  class {'cinder::client':
+     notify         => Service[$::nova::params::api_service_name],
   }
 
-  if $enabled {
-    $service_ensure = 'running'
-  } else {
-    $service_ensure = 'stopped'
+  nova::generic_service { 'api':
+    enabled        => $enabled,
+    ensure_package => $ensure_package,
+    package_name   => $::nova::params::api_package_name,
+    service_name   => $::nova::params::api_service_name,
   }
 
-  exec { "initial-db-sync":
-    command     => "/usr/bin/nova-manage db sync",
-    refreshonly => true,
-    require     => [Package["openstack-nova-common"], Nova_config['DEFAULT/sql_connection']],
+  nova_config {
+    'api_paste_config':     value => '/etc/nova/api-paste.ini';
+    'enabled_apis':         value => $enabled_apis;
+    'volume_api_class':     value => $volume_api_class;
+    'ec2_listen':           value => $api_bind_address;
+    'osapi_compute_listen': value => $api_bind_address;
+    'metadata_listen':      value => $api_bind_address;
+    'osapi_volume_listen':  value => $api_bind_address;
   }
 
-  nova::paste_config { "set_nova_auth_host":
-    key => "api-paste.ini/filter:authtoken/auth_host",
-    value => "$keystone_auth_host"
+  nova_paste_api_ini {
+    'filter:authtoken/auth_host':         value => $auth_host;
+    'filter:authtoken/auth_port':         value => $auth_port;
+    'filter:authtoken/auth_protocol':     value => $auth_protocol;
+    'filter:authtoken/admin_tenant_name': value => $admin_tenant_name;
+    'filter:authtoken/admin_user':        value => $admin_user;
+    'filter:authtoken/admin_password':    value => $admin_password;
   }
 
-  nova::paste_config { "set_nova_auth_port":
-    key => "api-paste.ini/filter:authtoken/auth_port",
-    value => "$keystone_auth_port"
+  if 'occiapi' in $enabled_apis {
+    if !defined(Package['python-pip']) {
+        package {'python-pip':
+                ensure => latest,
+        }
+    }
+    if !defined(Package['pyssf']){
+        package {'pyssf':
+            provider => pip,
+            ensure   => latest,
+            require  => Package['python-pip']
+        }
+    }
+    package { 'openstackocci' :
+      provider  => 'pip',
+      ensure    => latest,
+      require => Package['python-pip'],
+    }
   }
 
-  nova::paste_config { "set_nova_auth_protocol":
-    key => "api-paste.ini/filter:authtoken/auth_protocol",
-    value => "$keystone_auth_protocol"
-  }
-
-  nova::paste_config { "set_nova_auth_uri":
-    key => "api-paste.ini/filter:authtoken/auth_uri",
-    value => "$keystone_auth_uri"
-  }
-
-  nova::paste_config { "set_nova_admin_user":
-    key => "api-paste.ini/filter:authtoken/admin_user",
-    value => "$keystone_admin_user"
-  }
-
-  nova::paste_config { "set_nova_admin_password":
-    key => "api-paste.ini/filter:authtoken/admin_password",
-    value => "$keystone_admin_password"
-  }
-
-  nova::paste_config { "set_nova_admin_tenant_name":
-    key => "api-paste.ini/filter:authtoken/admin_tenant_name",
-    value => "$keystone_admin_tenant_name"
-  }
-
-  nova::paste_config { "set_nova_signing_dir":
-    key => "api-paste.ini/filter:authtoken/signing_dir",
-    value => "$keystone_signing_dir"
-  }
-
-  file { $keystone_signing_dir:
-    ensure  => directory,
-    mode    => '750',
-    owner   => 'nova',
-    group   => 'nova',
-    require => Package['openstack-nova-api'],
-  }
-
-  service { "nova-api":
-    name => 'openstack-nova-api',
-    ensure  => $service_ensure,
-    enable  => $enabled,
-    require => Package["openstack-nova-api"],
-    subscribe => [Augeas['set_nova_auth_host'],
-                  Augeas['set_nova_auth_port'],
-                  Augeas['set_nova_auth_protocol'],
-                  Augeas['set_nova_auth_uri'],
-                  Augeas['set_nova_admin_user'],
-                  Augeas['set_nova_admin_password'],
-                  Augeas['set_nova_admin_tenant_name'],
-                  Augeas['set_nova_signing_dir']
-    ]
+  # Added arg and if statement prevents this from being run where db is not active i.e. the compute
+  if $sync_db {
+    Package<| title == 'nova-api' |> -> Exec['nova-db-sync']
+    exec { "nova-db-sync":
+      command     => "/usr/bin/nova-manage db sync",
+      refreshonly => "true",
+      subscribe   => Exec['post-nova_config'],
+    }
   }
 
 }

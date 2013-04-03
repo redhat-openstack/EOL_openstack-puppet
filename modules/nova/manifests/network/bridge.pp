@@ -1,7 +1,7 @@
 # bridge.pp
 define nova::network::bridge ( $ip, $netmask = "255.255.255.0" )
 {
-  case $operatingsystem {
+  case $::operatingsystem {
 
     'debian', 'ubuntu': {
       $context = "/files/etc/network/interfaces"
@@ -19,11 +19,11 @@ define nova::network::bridge ( $ip, $netmask = "255.255.255.0" )
         notify => Exec["networking-refresh"],
       }
     }
-    
-    'fedora' : {
+
+    'fedora', 'CentOS', 'RedHat' : {
     }
 
-    default: { fail('nova::network_bridge currently only supports Debian and Ubuntu') }
+    default: { fail('nova::network_bridge currently only supports Debian, Ubuntu, Fedora, CentOS and RedHat') }
 
   }
 }

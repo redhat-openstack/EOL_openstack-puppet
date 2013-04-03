@@ -1,22 +1,18 @@
-class nova::cert( $enabled=true ) {
+#
+# installs nova cert package and service
+#
+class nova::cert(
+  $enabled        = false,
+  $ensure_package = 'present'
+) {
 
-  Exec['post-nova_config'] ~> Service['nova-cert']
-  Exec['nova-db-sync'] ~> Service['nova-cert']
+  include nova::params
 
-  if $enabled {
-    $service_ensure = 'running'
-  } else {
-    $service_ensure = 'stopped'
+  nova::generic_service { 'cert':
+    enabled        => $enabled,
+    package_name   => $::nova::params::cert_package_name,
+    service_name   => $::nova::params::cert_service_name,
+    ensure_package => $ensure_package,
   }
 
-  package {'openstack-nova-cert':
-    ensure  => present
-  }
-
-  service { "nova-cert":
-    name => 'openstack-nova-cert',
-    ensure  => $service_ensure,
-    enable  => $enabled,
-    require => Package["openstack-nova-cert"]
-  }
 }
