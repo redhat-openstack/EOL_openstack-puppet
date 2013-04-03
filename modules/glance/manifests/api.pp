@@ -1,158 +1,171 @@
+#
+# == Paremeters:
+#
+#
+#  * keystone_password Password used to authemn
+#
+#  * verbose - rather to log the glance api service at verbose level.
+#  Optional. Default: false
+#
+#  * debug - rather to log the glance api service at debug level.
+#  Optional. Default: false
+#
+#  * bind_host - The address of the host to bind to.
+#  Optional. Default: 0.0.0.0
+#
+#  * bind_port - The port the server should bind to.
+#  Optional. Default: 9292
+#
+#  * registry_host - The address used to connecto to the registy service.
+#  Optional. Default:
+#
+#  * registry_port - The port of the Glance registry service.
+#  Optional. Default: 9191
+#
+#  * log_file - The path of file used for logging
+#  Optional. Default: /var/log/glance/api.log
+#
+#  * auth_type - Type is authorization being used. Optional. Defaults to 'keystone'
+#  * auth_host - Host running auth service. Optional. Defaults to '127.0.0.1'.
+#  * auth_port - Port to use for auth service on auth_host. Optional. Defaults to '35357'.
+#  * auth_protocol - Protocol to use for auth. Optional. Defaults to 'http'.
+#  * keystone_tenant - tenant to authenticate to. Optioal. Defaults to admin.
+#  * keystone_user User to authenticate as with keystone Optional. Defaults to admin.
+#  * enabled  Whether to enable services. Optional. Defaults to true.
+#  * sql_idle_timeout
+#  * sql_connection db conection.
+#
 class glance::api(
-  $log_verbose = 'True',
-  $log_debug = 'False',
-  $default_store = 'file',
-  $bind_host = '0.0.0.0',
-  $bind_port = '9292',
-  $log_file = '/var/log/glance/api.log',
-  $backlog = '4096',
-  $tcp_keepidle = '600',
-  $workers = '1',
-  $admin_role = 'admin',
-  $allow_anonymous_access = 'False',
-  $use_syslog = 'False',
-  $syslog_log_facility = 'LOG_LOCAL0',
-  $cert_file = '',
-  $key_file = '',
-  $metadata_encryption_key = '1234567890ABCDEF',
-  $registry_host = '0.0.0.0',
-  $registry_port = '9191',
-  $registry_client_protocol = 'http',
-  $registry_client_key_file = '',
-  $registry_client_cert_file = '',
-  $registry_client_ca_file = '',
-  $notifier_strategy = 'noop',
-
-  $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
-  $sql_idle_timeout = '3600',
-
-  $rabbit_host = 'localhost',
-  $rabbit_port = '5672',
-  $rabbit_use_ssl = 'False',
-  $rabbit_userid = 'guest',
-  $rabbit_password = 'guest',
-  $rabbit_virtual_host = '/',
-  $rabbit_notification_exchange = 'glance',
-  $rabbit_notification_topic = 'glance_notifications',
-
-  $qpid_notification_exchange = 'glance',
-  $qpid_notification_topic = 'glance_notifications',
-  $qpid_host = 'localhost',
-  $qpid_port = '5672',
-  $qpid_username ='',
-  $qpid_password ='',
-  $qpid_sasl_mechanisms ='',
-  $qpid_reconnect_timeout = '0',
-  $qpid_reconnect_limit = '0',
-  $qpid_reconnect_interval_min = '0',
-  $qpid_reconnect_interval_max = '0',
-  $qpid_reconnect_interval = '0',
-  $qpid_heartbeat = '60',
-  $qpid_protocol = 'tcp',
-  $qpid_tcp_nodelay = 'True',
-
-  $filesystem_store_datadir = '/var/lib/glance/images/',
-
-  $swift_store_auth_version = '1',
-  $swift_store_auth_address = '127.0.0.1:8080/v1.0/',
-  $swift_store_user = 'jdoe:jdoe',
-  $swift_store_key = 'a86850deb2742ec3cb41518e26aa2d89',
-  $swift_store_container = 'glance',
-  $swift_store_create_container_on_put = 'False',
-  $swift_store_large_object_size = '5120',
-  $swift_store_large_object_chunk_size = '200',
-  $swift_enable_snet = 'False',
-  $swift_store_multi_tenant = 'False',
-  $swift_store_admin_tenants = '[]',
-
-  $s3_store_host = '127.0.0.1:8080/v1.0/',
-  $s3_store_access_key = 'ABCD',
-  $s3_store_secret_key = 'EFGH',
-  $s3_store_bucket = 'abcdglance',
-  $s3_store_create_bucket_on_put = 'False',
-  $s3_store_object_buffer_dir = '',
-  $rbd_store_ceph_conf = '/etc/ceph/ceph.conf',
-  $rbd_store_user = 'glance',
-  $rbd_store_pool = 'images',
-  $rbd_store_chunk_size = '8',
-  $delayed_delete = 'False',
-  $scrub_time = '43200',
-  $scrubber_datadir = '/var/lib/glance/scrubber',
-  $image_cache_dir = '/var/lib/glance/image-cache/',
-  $api_flavor = '',
+  $keystone_password,
+  $verbose           = 'False',
+  $debug             = 'False',
+  $bind_host         = '0.0.0.0',
+  $bind_port         = '9292',
+  $backlog           = '4096',
+  $workers           = $::processorcount,
+  $log_file          = '/var/log/glance/api.log',
+  $registry_host     = '0.0.0.0',
+  $registry_port     = '9191',
+  $auth_type         = 'keystone',
+  $auth_host         = '127.0.0.1',
+  $auth_port         = '35357',
+  $auth_protocol     = 'http',
+  $keystone_tenant   = 'admin',
+  $keystone_user     = 'admin',
+  $enabled           = true,
+  $sql_idle_timeout  = '3600',
+  $sql_connection    = 'sqlite:///var/lib/glance/glance.sqlite'
 ) inherits glance {
 
-  glance::paste_config { "set_glance_auth_version":
-    key => "glance-api-paste.ini/filter:authtoken/auth_version",
-    value => "$keystone_auth_version"
-  }
+  # used to configure concat
+  require 'keystone::python'
 
-  glance::paste_config { "set_glance_auth_host":
-    key => "glance-api-paste.ini/filter:authtoken/auth_host",
-    value => "$keystone_auth_host"
-  }
+  validate_re($sql_connection, '(sqlite|mysql|posgres):\/\/(\S+:\S+@\S+\/\S+)?')
 
-  glance::paste_config { "set_glance_auth_port":
-    key => "glance-api-paste.ini/filter:authtoken/auth_port",
-    value => "$keystone_auth_port"
-  }
+  Package['glance'] -> Glance_api_config<||>
+  Package['glance'] -> Glance_cache_config<||>
+  # adding all of this stuff b/c it devstack says glance-api uses the
+  # db now
+  Glance_api_config<||>   ~> Exec<| title == 'glance-manage db_sync' |>
+  Glance_cache_config<||> ~> Exec<| title == 'glance-manage db_sync' |>
+  Exec<| title == 'glance-manage db_sync' |> ~> Service['glance-api']
+  Glance_api_config<||>   ~> Service['glance-api']
+  Glance_cache_config<||> ~> Service['glance-api']
 
-  glance::paste_config { "set_glance_auth_protocol":
-    key => "glance-api-paste.ini/filter:authtoken/auth_protocol",
-    value => "$keystone_auth_protocol"
-  }
-
-  glance::paste_config { "set_glance_auth_uri":
-    key => "glance-api-paste.ini/filter:authtoken/auth_uri",
-    value => "$keystone_auth_uri"
-  }
-
-  glance::paste_config { "set_glance_admin_user":
-    key => "glance-api-paste.ini/filter:authtoken/admin_user",
-    value => "$keystone_admin_user"
-  }
-
-  glance::paste_config { "set_glance_admin_password":
-    key => "glance-api-paste.ini/filter:authtoken/admin_password",
-    value => "$keystone_admin_password"
-  }
-
-  glance::paste_config { "set_glance_admin_tenant_name":
-    key => "glance-api-paste.ini/filter:authtoken/admin_tenant_name",
-    value => "$keystone_admin_tenant_name"
-  }
-
-  glance::paste_config { "set_glance_signing_dir":
-    key => "glance-api-paste.ini/filter:authtoken/signing_dir",
-    value => "$keystone_signing_dir"
-  }
-
-  file { "/etc/glance/glance-api.conf":
+  File {
     ensure  => present,
     owner   => 'glance',
-    group   => 'root',
-    mode    => 640,
-    content => template('glance/glance-api.conf.erb'),
-    require => Class["glance"]
+    group   => 'glance',
+    mode    => '0640',
+    notify  => Service['glance-api'],
+    require => Class['glance'],
   }
 
-  service { "openstack-glance-api":
-    ensure     => running,
-    enable     => true,
+  if($sql_connection =~ /mysql:\/\/\S+:\S+@\S+\/\S+/) {
+    require 'mysql::python'
+  } elsif($sql_connection =~ /postgresql:\/\/\S+:\S+@\S+\/\S+/) {
+
+  } elsif($sql_connection =~ /sqlite:\/\//) {
+
+  } else {
+    fail("Invalid db connection ${sql_connection}")
+  }
+
+  # basic service config
+  glance_api_config {
+    'DEFAULT/verbose':   value => $verbose;
+    'DEFAULT/debug':     value => $debug;
+    'DEFAULT/bind_host': value => $bind_host;
+    'DEFAULT/bind_port': value => $bind_port;
+    'DEFAULT/backlog':   value => $backlog;
+    'DEFAULT/workers':   value => $workers;
+    'DEFAULT/log_file':  value => $log_file;
+  }
+
+  glance_cache_config {
+    'DEFAULT/verbose':   value => $verbose;
+    'DEFAULT/debug':     value => $debug;
+  }
+
+  # configure api service to connect registry service
+  glance_api_config {
+    'DEFAULT/registry_host': value => $registry_host;
+    'DEFAULT/registry_port': value => $registry_port;
+  }
+
+  glance_cache_config {
+    'DEFAULT/registry_host': value => $registry_host;
+    'DEFAULT/registry_port': value => $registry_port;
+  }
+
+  # db connection config
+  # I do not believe this was required in Essex. Does the API server now need to connect to the DB?
+  # TODO figure out if I need this...
+  glance_api_config {
+    'DEFAULT/sql_connection':   value => $sql_connection;
+    'DEFAULT/sql_idle_timeout': value => $sql_idle_timeout;
+  }
+
+  # auth config
+  glance_api_config {
+    'keystone_authtoken/auth_host':         value => $auth_host;
+    'keystone_authtoken/auth_port':         value => $auth_port;
+    'keystone_authtoken/protocol':          value => $protocol;
+  }
+
+  # keystone config
+  if $auth_type == 'keystone' {
+    glance_api_config {
+      'paste_deploy/flavor':                  value => 'keystone+cachemanagement';
+      'keystone_authtoken/admin_tenant_name': value => $keystone_tenant;
+      'keystone_authtoken/admin_user':        value => $keystone_user;
+      'keystone_authtoken/admin_password':    value => $keystone_password;
+    }
+    glance_cache_config {
+      'DEFAULT/auth_url':          value => $auth_url;
+      'DEFAULT/admin_tenant_name': value => $keystone_tenant;
+      'DEFAULT/admin_user':        value => $keystone_user;
+      'DEFAULT/admin_password':    value => $eystone_password;
+    }
+  }
+
+  file { ['/etc/glance/glance-api.conf',
+          '/etc/glance/glance-api-paste.ini',
+          '/etc/glance/glance-cache.conf'
+         ]:
+  }
+
+  if $enabled {
+    $service_ensure = 'running'
+  } else {
+    $service_ensure = 'stopped'
+  }
+
+  service { 'glance-api':
+    name       => $::glance::params::api_service_name,
+    ensure     => $service_ensure,
+    enable     => $enabled,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => [File["/etc/glance/glance-api.conf"],
-                   Augeas['set_glance_auth_version'],
-                   Augeas['set_glance_auth_host'],
-                   Augeas['set_glance_auth_port'],
-                   Augeas['set_glance_auth_protocol'],
-                   Augeas['set_glance_auth_uri'],
-                   Augeas['set_glance_admin_user'],
-                   Augeas['set_glance_admin_password'],
-                   Augeas['set_glance_admin_tenant_name'],
-                   Augeas['set_glance_signing_dir']
-                  ],
-    require    => Class["glance"]
   }
-
 }

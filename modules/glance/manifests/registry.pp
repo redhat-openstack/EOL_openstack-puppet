@@ -1,102 +1,109 @@
 class glance::registry(
-  $log_verbose = 'True',
-  $log_debug = 'False',
-  $bind_host = '0.0.0.0',
-  $bind_port = '9191',
-  $log_file = '/var/log/glance/registry.log',
-  $backlog = '4096',
-  $tcp_keepidle = '600',
-  $sql_connection = 'sqlite:///var/lib/glance/glance.sqlite',
-  $sql_idle_timeout = '3600',
-  $use_syslog = 'False',
-  $syslog_log_facility = 'LOG_LOCAL1',
-  $api_limit_max = '1000',
-  $limit_param_default = '25',
-  $admin_role = 'admin',
-  $cert_file = '',
-  $key_file = '',
-  $registry_flavor = ''
+  $keystone_password,
+  $verbose           = 'False',
+  $debug             = 'False',
+  $bind_host         = '0.0.0.0',
+  $bind_port         = '9191',
+  $log_file          = '/var/log/glance/registry.log',
+  $sql_connection    = 'sqlite:///var/lib/glance/glance.sqlite',
+  $sql_idle_timeout  = '3600',
+  $auth_type         = 'keystone',
+  $auth_host         = '127.0.0.1',
+  $auth_port         = '35357',
+  $auth_protocol     = 'http',
+  $keystone_tenant   = 'admin',
+  $keystone_user     = 'admin',
+  $enabled           = true
 ) inherits glance {
 
-  glance::paste_config { "set_glance_registry_auth_version":
-    key => "glance-registry-paste.ini/filter:authtoken/auth_version",
-    value => "$keystone_auth_version"
-  }
+  require 'keystone::python'
 
-  glance::paste_config { "set_glance_registry_auth_host":
-    key => "glance-registry-paste.ini/filter:authtoken/auth_host",
-    value => "$keystone_auth_host"
-  }
+  validate_re($sql_connection, '(sqlite|mysql|posgres):\/\/(\S+:\S+@\S+\/\S+)?')
 
-  glance::paste_config { "set_glance_registry_auth_port":
-    key => "glance-registry-paste.ini/filter:authtoken/auth_port",
-    value => "$keystone_auth_port"
-  }
+  Package['glance'] -> Glance_registry_config<||>
+  Glance_registry_config<||> ~> Exec<| title == 'glance-manage db_sync' |>
+  Glance_registry_config<||> ~> Service['glance-registry']
 
-  glance::paste_config { "set_glance_registry_auth_protocol":
-    key => "glance-registry-paste.ini/filter:authtoken/auth_protocol",
-    value => "$keystone_auth_protocol"
-  }
-
-  glance::paste_config { "set_glance_registry_auth_uri":
-    key => "glance-registry-paste.ini/filter:authtoken/auth_uri",
-    value => "$keystone_auth_uri"
-  }
-
-  glance::paste_config { "set_glance_registry_admin_user":
-    key => "glance-registry-paste.ini/filter:authtoken/admin_user",
-    value => "$keystone_admin_user"
-  }
-
-  glance::paste_config { "set_glance_registry_admin_password":
-    key => "glance-registry-paste.ini/filter:authtoken/admin_password",
-    value => "$keystone_admin_password"
-  }
-
-  glance::paste_config { "set_glance_registry_admin_tenant_name":
-    key => "glance-registry-paste.ini/filter:authtoken/admin_tenant_name",
-    value => "$keystone_admin_tenant_name"
-  }
-
-  glance::paste_config { "set_glance_registry_signing_dir":
-    key => "glance-registry-paste.ini/filter:authtoken/signing_dir",
-    value => "$keystone_signing_dir"
-  }
-
-  exec { "glance-db-sync":
-    command     => "/usr/bin/glance-manage db_sync",
-    refreshonly => true,
-    user     => 'glance',
-    require     => Package["openstack-glance"]
-  }
-
-  file { "/etc/glance/glance-registry.conf":
+  File {
     ensure  => present,
     owner   => 'glance',
-    group   => 'root',
-    mode    => 640,
-    content => template('glance/glance-registry.conf.erb'),
-    require => Class["glance"],
-    notify   => Exec['glance-db-sync'],
+    group   => 'glance',
+    mode    => '0640',
+    notify  => Service['glance-registry'],
+    require => Class['glance']
   }
 
-  service { "openstack-glance-registry":
-    ensure     => running,
-    enable     => true,
+  if($sql_connection =~ /mysql:\/\/\S+:\S+@\S+\/\S+/) {
+    require 'mysql::python'
+  } elsif($sql_connection =~ /postgresql:\/\/\S+:\S+@\S+\/\S+/) {
+
+  } elsif($sql_connection =~ /sqlite:\/\//) {
+
+  } else {
+    fail("Invalid db connection ${sql_connection}")
+  }
+
+  # basic service config
+  glance_registry_config {
+    'DEFAULT/verbose':   value => $verbose;
+    'DEFAULT/debug':     value => $debug;
+    'DEFAULT/bind_host': value => $bind_host;
+    'DEFAULT/bind_port': value => $bind_port;
+  }
+
+  # db connection config
+  glance_registry_config {
+    'DEFAULT/sql_connection':   value => $sql_connection;
+    'DEFAULT/sql_idle_timeout': value => $sql_idle_timeout;
+  }
+
+  # auth config
+  glance_registry_config {
+    'keystone_authtoken/auth_host':     value => $auth_host;
+    'keystone_authtoken/auth_port':     value => $auth_port;
+    'keystone_authtoken/auth_protocol': value => $auth_protocol;
+  }
+
+  # keystone config
+  if $auth_type == 'keystone' {
+    glance_registry_config {
+      'paste_deploy/flavor':                  value => 'keystone';
+      'keystone_authtoken/admin_tenant_name': value => $keystone_tenant;
+      'keystone_authtoken/admin_user':        value => $keystone_user;
+      'keystone_authtoken/admin_password':    value => $keystone_password;
+    }
+  }
+
+  file { ['/etc/glance/glance-registry.conf',
+          '/etc/glance/glance-registry-paste.ini'
+         ]:
+  }
+
+  if $enabled {
+
+    Exec['glance-manage db_sync'] ~> Service['glance-registry']
+
+    exec { 'glance-manage db_sync':
+      command     => $::glance::params::db_sync_command,
+      path        => '/usr/bin',
+      user        => 'glance',
+      refreshonly => true,
+      logoutput   => on_failure,
+      subscribe   => [Package['glance'], File['/etc/glance/glance-registry.conf']],
+    }
+    $service_ensure = 'running'
+  } else {
+    $service_ensure = 'stopped'
+  }
+
+  service { 'glance-registry':
+    name       => $::glance::params::registry_service_name,
+    ensure     => $service_ensure,
+    enable     => $enabled,
     hasstatus  => true,
     hasrestart => true,
-    subscribe  => [File["/etc/glance/glance-registry.conf"], 
-                   Augeas['set_glance_registry_auth_version'],
-                   Augeas['set_glance_registry_auth_host'],
-                   Augeas['set_glance_registry_auth_port'],
-                   Augeas['set_glance_registry_auth_protocol'],
-                   Augeas['set_glance_registry_auth_uri'],
-                   Augeas['set_glance_registry_admin_user'],
-                   Augeas['set_glance_registry_admin_password'],
-                   Augeas['set_glance_registry_admin_tenant_name'],
-                   Augeas['set_glance_registry_signing_dir']
-                  ],
-    require    => [Class["glance"], Exec['glance-db-sync']]
+    subscribe  => File['/etc/glance/glance-registry.conf'],
+    require    => Class['glance']
   }
 
 }

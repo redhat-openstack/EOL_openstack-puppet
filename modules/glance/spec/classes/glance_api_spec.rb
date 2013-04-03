@@ -2,47 +2,65 @@ require 'spec_helper'
 
 describe 'glance::api' do
 
-  let :default_params do
+  let :facts do
     {
-      :log_verbose => 'false',
-      :log_debug => 'false',
-      :default_store => 'file',
-      :bind_host => '0.0.0.0',
-      :bind_port => '9292',
-      :registry_host => '0.0.0.0',
-      :registry_port => '9191',
-      :log_file => '/var/log/glance/api.log',
-      :filesystem_store_datadir => '/var/lib/glance/images/',
-      :swift_store_auth_address => '127.0.0.1:8080/v1.0/',
-      :swift_store_user => 'jdoe',
-      :swift_store_key => 'a86850deb2742ec3cb41518e26aa2d89',
-      :swift_store_container => 'glance',
-      :swift_store_create_container_on_put => 'False'
+      :osfamily => 'Debian',
+      :processorcount => '7',
     }
   end
 
-  [{},
+  let :default_params do
+    {
+      :verbose           => 'False',
+      :debug             => 'False',
+      :bind_host         => '0.0.0.0',
+      :bind_port         => '9292',
+      :registry_host     => '0.0.0.0',
+      :registry_port     => '9191',
+      :log_file          => '/var/log/glance/api.log',
+      :auth_type         => 'keystone',
+      :enabled           => true,
+      :backlog           => '4096',
+      :workers           => '7',
+      :auth_host         => '127.0.0.1',
+      :auth_port         => '35357',
+      :auth_protocol     => 'http',
+      :keystone_tenant   => 'admin',
+      :keystone_user     => 'admin',
+      :keystone_password => 'ChangeMe',
+      :sql_idle_timeout  => '3600',
+      :sql_connection    => 'sqlite:///var/lib/glance/glance.sqlite'
+    }
+  end
+
+  [{:keystone_password => 'ChangeMe'},
    {
-      :log_verbose => 'true',
-      :log_debug => 'true',
-      :default_store => 'file',
-      :bind_host => '127.0.0.1',
-      :bind_port => '9222',
-      :registry_host => '127.0.0.1',
-      :registry_port => '9111',
-      :log_file => '/var/log/glance-api.log',
-      :filesystem_store_datadir => '/var/lib/glance-images/',
-      :swift_store_auth_address => '127.0.0.1:8080/v1.1/',
-      :swift_store_user => 'dan',
-      :swift_store_key => 'a',
-      :swift_store_container => 'other',
-      :swift_store_create_container_on_put => 'True'
+      :verbose           => 'true',
+      :debug             => 'true',
+      :bind_host         => '127.0.0.1',
+      :bind_port         => '9222',
+      :registry_host     => '127.0.0.1',
+      :registry_port     => '9111',
+      :log_file          => '/var/log/glance-api.log',
+      :auth_type         => 'not_keystone',
+      :enabled           => false,
+      :backlog           => '4095',
+      :workers           => '5',
+      :auth_host         => '127.0.0.2',
+      :auth_port         => '35358',
+      :auth_protocol     => 'https',
+      :keystone_tenant   => 'admin2',
+      :keystone_user     => 'admin2',
+      :keystone_password => 'ChangeMe2',
+      :sql_idle_timeout  => '36002',
+      :sql_connection    => 'mysql:///var:lib@glance/glance'
     }
   ].each do |param_set|
 
-    describe "when #{param_set == {} ? "using default" : "specifying"} class parameters" do
+    describe "when #{param_set == {:keystone_password => 'ChangeMe'} ? "using default" : "specifying"} class parameters" do
+
       let :param_hash do
-        param_set == {} ? default_params : params
+        default_params.merge(param_set)
       end
 
       let :params do
@@ -51,32 +69,63 @@ describe 'glance::api' do
 
       it { should contain_class 'glance' }
 
-      it do should contain_service('glance-api').with(
-        'ensure'     => 'running',
+      it { should contain_service('glance-api').with(
+        'ensure'     => param_hash[:enabled] ? 'running': 'stopped',
+        'enable'     => param_hash[:enabled],
         'hasstatus'  => 'true',
-        'hasrestart' => 'true',
-        'subscribe'  => 'File[/etc/glance/glance-api.conf]'
-      ) end
+        'hasrestart' => 'true'
+      ) }
 
-      it 'should compile the template based on the class parameters' do
-        content = param_value(subject, 'file', '/etc/glance/glance-api.conf', 'content')
-        expected_lines = [
-          "verbose = #{param_hash[:log_verbose]}",
-          "debug = #{param_hash[:log_debug]}",
-          "default_store = #{param_hash[:default_store]}",
-          "bind_host = #{param_hash[:bind_host]}",
-          "bind_port = #{param_hash[:bind_port]}",
-          "registry_host = #{param_hash[:registry_host]}",
-          "registry_port = #{param_hash[:registry_port]}",
-          "log_file = #{param_hash[:log_file]}",
-          "filesystem_store_datadir = #{param_hash[:filesystem_store_datadir]}",
-          "swift_store_auth_address = #{param_hash[:swift_store_auth_address]}",
-          "swift_store_user = #{param_hash[:swift_store_user]}",
-          "swift_store_key = #{param_hash[:swift_store_key]}",
-          "swift_store_container = #{param_hash[:swift_store_container]}",
-          "swift_store_create_container_on_put = #{param_hash[:swift_store_create_container_on_put]}"
-        ]
-        (content.split("\n") & expected_lines).should == expected_lines
+      it 'should lay down default api config' do
+        [
+          'verbose',
+          'debug',
+          'bind_host',
+          'bind_port',
+          'log_file',
+          'registry_host',
+          'registry_port'
+        ].each do |config|
+          should contain_glance_api_config("DEFAULT/#{config}").with_value(param_hash[config.intern])
+        end
+      end
+
+      it 'should lay down default cache config' do
+        [
+          'verbose',
+          'debug',
+          'registry_host',
+          'registry_port'
+        ].each do |config|
+          should contain_glance_cache_config("DEFAULT/#{config}").with_value(param_hash[config.intern])
+        end
+      end
+
+      it 'should config db' do
+        should contain_glance_api_config('DEFAULT/sql_connection').with_value(param_hash[:sql_connection])
+        should contain_glance_api_config('DEFAULT/sql_idle_timeout').with_value(param_hash[:sql_idle_timeout])
+      end
+
+      it 'should lay down default auth config' do
+        [
+          'auth_host',
+          'auth_port',
+          'protocol'
+        ].each do |config|
+          should contain_glance_api_config("keystone_authtoken/#{config}").with_value(param_hash[config.intern])
+        end
+      end
+
+      it 'should configure itself for keystone if that is the auth_type' do
+        if params[:auth_type] == 'keystone'
+          should contain('paste_deploy/flavor').with_value('keystone+cachemanagement')
+          ['admin_tenant_name', 'admin_user', 'admin_password'].each do |config|
+            should contain_glance_api_config("keystone_authtoken/#{config}").with_value(param_hash[config.intern])
+          end
+          ['admin_tenant_name', 'admin_user', 'admin_password'].each do |config|
+            should contain_glance_cache_config("keystone_authtoken/#{config}").with_value(param_hash[config.intern])
+          end
+        end
       end
     end
   end
