@@ -34,6 +34,7 @@ class nova(
   # this is how to query all resources from our clutser
   $nova_cluster_id='localcluster',
   $sql_connection = false,
+  $rpc_backend = 'nova.rpc.impl_kombu',
   $image_service = 'nova.image.glance.GlanceImageService',
   # these glance params should be optional
   # this should probably just be configured as a glance client
@@ -43,6 +44,21 @@ class nova(
   $rabbit_port='5672',
   $rabbit_userid='guest',
   $rabbit_virtual_host='/',
+
+  $qpid_hostname = 'localhost',
+  $qpid_port = '5672',
+  $qpid_username = 'guest',
+  $qpid_password = 'guest',
+  $qpid_reconnect = true,
+  $qpid_reconnect_timeout = 0,
+  $qpid_reconnect_limit = 0,
+  $qpid_reconnect_interval_min = 0,
+  $qpid_reconnect_interval_max = 0,
+  $qpid_reconnect_interval = 0,
+  $qpid_heartbeat = 60,
+  $qpid_protocol = 'tcp',
+  $qpid_tcp_nodelay = true,
+
   $auth_strategy = 'keystone',
   $service_down_time = 60,
   $logdir = '/var/log/nova',
@@ -160,24 +176,45 @@ class nova(
   } else {
     Nova_config <<| title == 'rabbit_host' |>>
   }
-  # I may want to support exporting and collecting these
-  nova_config {
-    'rabbit_password':     value => $rabbit_password;
-    'rabbit_port':         value => $rabbit_port;
-    'rabbit_userid':       value => $rabbit_userid;
-    'rabbit_virtual_host': value => $rabbit_virtual_host;
+
+  if $rpc_backend == 'nova.rpc.impl_kombu' {
+    # I may want to support exporting and collecting these
+    nova_config {
+      'rabbit_password':     value => $rabbit_password;
+      'rabbit_port':         value => $rabbit_port;
+      'rabbit_userid':       value => $rabbit_userid;
+      'rabbit_virtual_host': value => $rabbit_virtual_host;
+    }
+  }
+
+  if $rpc_backend == 'nova.rpc.impl_qpid' {
+    nova_config {
+      'DEFAULT/qpid_hostname': value => $qpid_hostname;
+      'DEFAULT/qpid_port': value => $qpid_port;
+      'DEFAULT/qpid_username': value => $qpid_username;
+      'DEFAULT/qpid_password': value => $qpid_password;
+      'DEFAULT/qpid_reconnect': value => $qpid_reconnect;
+      'DEFAULT/qpid_reconnect_timeout': value => $qpid_reconnect_timeout;
+      'DEFAULT/qpid_reconnect_limit': value => $qpid_reconnect_limit;
+      'DEFAULT/qpid_reconnect_interval_min': value => $qpid_reconnect_interval_min;
+      'DEFAULT/qpid_reconnect_interval_max': value => $qpid_reconnect_interval_max;
+      'DEFAULT/qpid_reconnect_interval': value => $qpid_reconnect_interval;
+      'DEFAULT/qpid_heartbeat': value => $qpid_heartbeat;
+      'DEFAULT/qpid_protocol': value => $qpid_protocol;
+      'DEFAULT/qpid_tcp_nodelay': value => $qpid_tcp_nodelay;
+    }
   }
 
   nova_config {
     'verbose':           value => $verbose;
     'logdir':            value => $logdir;
+    'rpc_backend':       value => $rpc_backend;
     # Following may need to be broken out to different nova services
     'state_path':        value => $state_path;
     'lock_path':         value => $lock_path;
     'service_down_time': value => $service_down_time;
     'rootwrap_config':  value => $rootwrap_config;
   }
-
 
   if $monitoring_notifications {
     nova_config {
