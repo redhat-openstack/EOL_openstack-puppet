@@ -18,7 +18,6 @@
 #
 # Copyright 2011 Puppetlabs Inc, unless otherwise noted.
 define swift::storage::generic(
-  $bind_port,
   $package_ensure   = 'present',
   $service_provider = $::swift::params::service_provider
 ) {
@@ -43,64 +42,22 @@ define swift::storage::generic(
     group  => 'swift',
   }
 
-  if $operatingsystem == "Fedora" {
+  service { "swift-${name}":
+    name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_service_name') %>"),
+    ensure    => running,
+    enable    => true,
+    hasstatus => true,
+    provider  => $service_provider,
+    subscribe => Package["swift-${name}"],
+  }
 
-     # Fedora 17/18 now use systemd
-     service { "swift-${name}":
-      name      => "openstack-swift-$name@$bind_port",
-      ensure    => running,
-      hasstatus => true,
-      provider  => $service_provider,
-      subscribe => Package["swift-${name}"],
-    }
-
-    service { "swift-${name}-replicator":
-      name      => "openstack-swift-$name-replicator@$bind_port",
-      ensure    => running,
-      hasstatus => true,
-      provider  => $service_provider,
-      subscribe => Package["swift-${name}"],
-    }
-
-  } else {
-
-    service { "swift-${name}":
-      name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_service_name') %>"),
-      ensure    => running,
-      enable    => true,
-      hasstatus => true,
-      provider  => $service_provider,
-      subscribe => Package["swift-${name}"],
-    }
-
-    service { "swift-${name}-replicator":
-      name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_replicator_service_name') %>"),
-      ensure    => running,
-      enable    => true,
-      hasstatus => true,
-      provider  => $service_provider,
-      subscribe => Package["swift-${name}"],
-    }
-
-    if $operatingsystem == "Ubuntu" and $name == "container" {
-      # The following container service conf is missing in Ubunty 12.04
-      file { '/etc/init/swift-container-sync.conf':
-        source  => 'puppet:///modules/swift/swift-container-sync.conf.upstart',
-        require => Package['swift-container'],
-      }
-      file { '/etc/init.d/swift-container-sync':
-        ensure => link,
-        target => '/lib/init/upstart-job',
-      }
-      service { 'swift-container-sync':
-        ensure    => running,
-        enable    => true,
-        provider  => $::swift::params::service_provider,
-        require   => File['/etc/init/swift-container-sync.conf', '/etc/init.d/swift-container-sync']
-      }
-
-    }
-
+  service { "swift-${name}-replicator":
+    name      => inline_template("<%= scope.lookupvar('::swift::params::${name}_replicator_service_name') %>"),
+    ensure    => running,
+    enable    => true,
+    hasstatus => true,
+    provider  => $service_provider,
+    subscribe => Package["swift-${name}"],
   }
 
 }
