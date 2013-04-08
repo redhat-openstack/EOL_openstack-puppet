@@ -1,13 +1,11 @@
-#
-# Class for installing cinderclient
-#
-#
 class cinder::client(
-  $ensure='present',
+  $package_ensure = 'present'
 ) {
 
-  package { 'python-cinderclient':
-    ensure => $ensure,
-  }
+  include cinder::params
 
+  package { 'python-cinderclient':
+    name   => $::cinder::params::client_package,
+    ensure => $package_ensure,
+  }
 }

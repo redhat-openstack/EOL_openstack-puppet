@@ -1,9 +1,9 @@
-Puppet::Type.newtype(:cinder_config) do
+Puppet::Type.newtype(:cinder_api_paste_ini) do
 
   ensurable
 
   newparam(:name, :namevar => true) do
-    desc 'Section/setting name to manage from /etc/cinder/cinder.conf'
+    desc 'Section/setting name to manage from /etc/cinder/api-paste.ini'
     newvalues(/\S+\/\S+/)
   end
 

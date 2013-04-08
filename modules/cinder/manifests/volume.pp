@@ -1,69 +1,37 @@
-class cinder::volume(
-  $enabled=true
-) inherits cinder {
+# $volume_name_template = volume-%s
+class cinder::volume (
+  $package_ensure = 'latest',
+  $enabled        = true
+) {
 
-  Exec['post-cinder_config'] ~> Service['cinder-volume']
-  Exec['cinder-db-sync'] ~> Service['cinder-volume']
+  include cinder::params
+
+  Cinder_config<||> ~> Service['cinder-volume']
+  Cinder_api_paste_ini<||> ~> Service['cinder-volume']
+
+  if $::cinder::params::volume_package {
+    Package['cinder-volume'] -> Cinder_config<||>
+    Package['cinder-volume'] -> Cinder_api_paste_ini<||>
+    Package['cinder']        -> Package['cinder-volume']
+    Package['cinder-volume'] -> Service['cinder-volume']
+    package { 'cinder-volume':
+      name   => $::cinder::params::volume_package,
+      ensure => $package_ensure,
+    }
+  }
 
   if $enabled {
-    $service_ensure = 'running'
+    $ensure = 'running'
   } else {
-    $service_ensure = 'stopped'
+    $ensure = 'stopped'
   }
 
-  exec {volumes:
-    command => 'dd if=/dev/zero of=/tmp/cinder-volumes.img bs=1M seek=20k count=0 && /sbin/vgcreate cinder-volumes `/sbin/losetup --show -f /tmp/cinder-volumes.img`',
-    onlyif => 'test ! -e /tmp/cinder-volumes.img',
-    path => ["/usr/bin", "/bin", "/usr/local/bin"],
-    before => Service['cinder-volume'],
-  }
-
-  service { "cinder-volume":
-    name => 'openstack-cinder-volume',
-    ensure  => $service_ensure,
-    enable  => $enabled,
-    require => Package["openstack-cinder"],
-    #subscribe => File["/etc/cinder/cinder.conf"]
-  }
-
-  file { '/etc/tgt/conf.d/cinder.conf':
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => 600,
-    content  => template('cinder/cinder-tgt.conf.erb'),
-    require => Package["openstack-cinder"]
-  }
-
-  service {'tgtd':
-    ensure  => $service_ensure,
-    enable  => $enabled,
-    require => [Package["openstack-cinder"], File['/etc/tgt/conf.d/cinder.conf']]
-  }
-
-  if ($::operatingsystem == 'Fedora') {
-
-    #NOTE: This works around a startup issue w/ existing tgtd daemon and
-    # the Fedora systemd config
-    $tgtd_service_file = '/usr/lib/systemd/system/tgtd.service'
-    file { $tgtd_service_file:
-      ensure  => present,
-      owner   => 'root',
-      group   => 'root',
-      mode    => 644,
-      source  => 'puppet:///modules/cinder/tgtd.service',
-      require => Package["openstack-cinder"]
-    }
-
-    exec { "daemon-reload":
-      command => "systemctl --system daemon-reload",
-      refreshonly => true,
-      path    => "/usr/bin",
-      subscribe   => File[$tgtd_service_file]
-    }
-
-    Exec['daemon-reload'] -> Service['tgtd']
-
+  service { 'cinder-volume':
+    name      => $::cinder::params::volume_service,
+    enable    => $enabled,
+    ensure    => $ensure,
+    require   => Package['cinder'],
+    subscribe => File[$::cinder::params::cinder_conf],
   }
 
 }
