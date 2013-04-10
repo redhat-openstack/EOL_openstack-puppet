@@ -4,8 +4,6 @@
 # ==Parameters
 #
 # [sql_connection] Connection url to use to connect to nova sql database.
-#  If specified as false, then it tries to collect the exported resource
-#   Nova_config <<| title == 'sql_connection' |>>. Optional. Defaults to false.
 # [image_service] Service used to search for and retrieve images. Optional.
 #   Defaults to 'nova.image.local.LocalImageService'
 # [glance_api_servers] List of addresses for api servers. Optional.
@@ -154,8 +152,6 @@ class nova(
       fail("Invalid db connection ${sql_connection}")
     }
     nova_config { 'sql_connection': value => $sql_connection }
-  } else {
-    Nova_config <<| title == 'sql_connection' |>>
   }
 
   nova_config { 'image_service': value => $image_service }
@@ -163,9 +159,6 @@ class nova(
   if $image_service == 'nova.image.glance.GlanceImageService' {
     if $glance_api_servers {
       nova_config { 'glance_api_servers': value => $glance_api_servers }
-    } else {
-      # TODO this only supports setting a single address for the api server
-      Nova_config <<| title == glance_api_servers |>>
     }
   }
 
@@ -173,8 +166,6 @@ class nova(
 
   if $rabbit_host {
     nova_config { 'rabbit_host': value => $rabbit_host }
-  } else {
-    Nova_config <<| title == 'rabbit_host' |>>
   }
 
   if $rpc_backend == 'nova.rpc.impl_kombu' {
