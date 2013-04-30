@@ -1,25 +1,7 @@
-Puppet Labs OpenStack
-=====================
+OpenStack Support Modules
+=========================
 
-A collection of modules to install OpenStack on Fedora.
+A collection of modules that support the stackforge/puppet-* modules
+for OpenStack.
 
-Requirements
-------------
-
-* Tested on Fedora 17
-
-Installation
-------------
-
-1. Install Puppet A
-    $ sudo yum install puppet
-
-2. Download the Puppet OpenStack module
-    $ cd ~ && git clone --recurse git://github.com/fedora-openstack/openstack-puppet.git
-
-3. Copy the modules into the Puppet modulepath
-    $ sudo mkdir -p /etc/puppet/modules/
-    $ sudo cp -R ~/openstack-puppet/modules/* /etc/puppet/modules/
-
-4. Run Puppet
-    $ sudo puppet apply --verbose ~/openstack-puppet/manifests/fedora.pp
+* Tested on Fedora 18 via SmokeStack
