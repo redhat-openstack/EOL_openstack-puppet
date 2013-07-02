@@ -26,8 +26,12 @@ Puppet::Type.type(:qpid_user).provide(:saslpasswd2) do
   end
 
   def exists?
-    out = sasldblistusers2('-f', resource[:file]).split(/\n/)[1..-2].detect do |line|
-      line.match(/^#{resource[:name]}@#{resource[:realm]}:.*$/)
+    begin
+      out = sasldblistusers2('-f', resource[:file]).split(/\n/)[1..-2].detect do |line|
+        line.match(/^#{resource[:name]}@#{resource[:realm]}:.*$/)
+      end
+    rescue
+      return false
     end
   end
 
