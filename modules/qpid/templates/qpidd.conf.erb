@@ -11,7 +11,9 @@ worker-threads=<%= worker_threads %>
 connection-backlog=<%= connection_backlog %>
 auth=<%= auth %>
 realm=<%= realm %>
-cluster-mechanism=<%= cluster_mechanism %>
+<% if clustered == true %>
+<%= mechanism_option %>=<%= cluster_mechanism %>
+<% end %>
 <% if log_to_file != 'UNSET' %>
 log-to-file=<%= log_to_file %>
 <% end %>

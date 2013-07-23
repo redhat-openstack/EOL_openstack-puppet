@@ -3,8 +3,14 @@ Dan Prince <dprince@redhat.com>
 
 This module manages the Qpid.
 
-example:
+examples:
 
-class { 'qpid::server':
-  log_to_file => '/var/log/qpidd.log'
+class { 'qpid::server': }
+
+qpid_user { 'foo':
+  password  => 'changeme',
+  file  => '/var/lib/qpidd/qpidd.sasldb',
+  realm  => 'TEST',
+  provider => 'saslpasswd2',
+  require   => Class['qpid::server'],
 }
