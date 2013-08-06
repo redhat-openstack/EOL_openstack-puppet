@@ -1,7 +1,3 @@
-Initial work based on https://github.com/ekarlso/puppet-vswitch
-
-------
-
 Puppet module providing things for vSwitches. At the moment OVS is the only
 one I've added but please feel free to pull request this!
 
@@ -35,3 +31,5 @@ TODO:
 * OpenFlow Tables
 * More facts
 * Others that are not named here
+
+The CiscoSystems repository is based on the work at https://github.com/ekarlso/puppet-vswitch.

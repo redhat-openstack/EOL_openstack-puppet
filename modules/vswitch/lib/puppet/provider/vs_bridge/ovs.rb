@@ -1,8 +1,7 @@
 require "puppet"
 
 Puppet::Type.type(:vs_bridge).provide(:ovs) do
-
-  commands :vsctl => "/bin/ovs-vsctl"
+  commands :vsctl => "/usr/bin/ovs-vsctl"
 
   def exists?
     vsctl("br-exists", @resource[:name])
@@ -38,5 +37,4 @@ Puppet::Type.type(:vs_bridge).provide(:ovs) do
       end
     end
   end
-
 end
