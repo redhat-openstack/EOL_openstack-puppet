@@ -44,6 +44,7 @@ This module is based on work by David Schmitt. The following contributor have co
 * Matthias Pigulla
 * William Van Hevelingen
 * Michael Arnold
+* Chris Weyl
 
 ## Usage
 
@@ -56,7 +57,12 @@ Installs the mysql-client package.
 Installs mysql bindings for java.
 
     class { 'mysql::java': }
-    
+
+### mysql::perl
+Installs mysql bindings for perl
+
+    class { 'mysql::perl': }
+
 ### mysql::php
 Installs mysql bindings for php
 
@@ -92,7 +98,7 @@ Creates a database with a user and assign some privileges.
     }
 
 ### mysql::backup
-Installs a mysql backup script, cronjob, and priviledged backup user.
+Installs a mysql backup script, cronjob, and privileged backup user.
 
     class { 'mysql::backup':
       backupuser     => 'myuser',

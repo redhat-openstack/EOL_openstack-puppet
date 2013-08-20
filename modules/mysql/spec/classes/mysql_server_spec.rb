@@ -13,6 +13,7 @@ describe 'mysql::server' do
     let :facts do
       { :osfamily => 'Debian',
         :operatingsystem => 'Ubuntu',
+        :root_home => '/root'
       }
     end
 
@@ -35,7 +36,7 @@ describe 'mysql::server' do
         :service_name => 'mysql-server',
         :package_name => 'databases/mysql55-server'
       },
-      'Redhat' => {
+      'RedHat' => {
         :service_name => 'mysqld',
         :package_name => 'mysql-server'
       }
@@ -44,7 +45,7 @@ describe 'mysql::server' do
       describe "when osfamily is #{osfamily}" do
 
         let :facts do
-          { :osfamily => osfamily }
+          { :osfamily => osfamily, :root_home => '/root' }
         end
 
         [
