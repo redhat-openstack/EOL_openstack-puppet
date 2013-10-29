@@ -1,37 +1,48 @@
-# Sets up the concat system.
+# === Class: concat::setup
 #
-# $concatdir should point to a place where you wish the fragments to
-# live. This should not be somewhere like /tmp since ideally these files
-# should not be deleted ever, puppet should always manage them
+# Sets up the concat system. This is a private class.
 #
-# $puppetversion should be either 24 or 25 to enable a 24 compatible
-# mode, in 24 mode you might see phantom notifies this is a side effect
-# of the method we use to clear the fragments directory.
-# 
-# The regular expression below will try to figure out your puppet version
-# but this code will only work in 0.24.8 and newer.
+# [$concatdir]
+#   is where the fragments live and is set on the fact concat_basedir.
+#   Since puppet should always manage files in $concatdir and they should
+#   not be deleted ever, /tmp is not an option.
 #
-# It also copies out the concatfragments.sh file to /usr/local/bin
+# It also copies out the concatfragments.sh file to ${concatdir}/bin
+#
 class concat::setup {
-    $root_group = 0
-    $concatdir = "/var/lib/puppet/concat"
-    $majorversion = regsubst($puppetversion, '^[0-9]+[.]([0-9]+)[.][0-9]+$', '\1')
+  if $caller_module_name != $module_name {
+    fail("Use of private class ${name} by ${caller_module_name}")
+  }
 
-    file{"/usr/local/bin/concatfragments.sh": 
-            owner  => root,
-            group  => $root_group,
-            mode   => 755,
-            source => $majorversion ? {
-                        24      => "puppet:///concat/concatfragments.sh",
-                        default => "puppet:///modules/concat/concatfragments.sh"
-                      };
+  if $::concat_basedir {
+    $concatdir = $::concat_basedir
+  } else {
+    fail ('$concat_basedir not defined. Try running again with pluginsync=true on the [master] and/or [main] section of your node\'s \'/etc/puppet/puppet.conf\'.')
+  }
 
-         $concatdir: 
-            ensure => directory,
-            owner  => root,
-            group  => $root_group,
-            mode   => 755;
-    }
+  $script_name = $::kernel ? {
+    'windows' => "concatfragments.rb",
+    default   => "concatfragments.sh"
+  }
+
+  $script_path = "${concatdir}/bin/${script_name}"
+
+  $script_command   = $::kernel ? {
+    'windows' => "ruby.exe ${script_path}",
+    default   => $script_path
+  }
+
+  File {
+    backup => false,
+  }
+
+  file { $script_path:
+    mode   => '0755',
+    source => "puppet:///modules/concat/${script_name}",
+  }
+
+  file { [ $concatdir, "${concatdir}/bin" ]:
+    ensure => directory,
+    mode   => '0755',
+  }
 }
-
-# vi:tabstop=4:expandtab:ai
