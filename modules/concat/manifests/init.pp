@@ -1,211 +1,176 @@
-# == Define: concat
+# A system to construct files using fragments from other files or templates.
 #
-# Sets up so that you can use fragments to build a final config file,
+# This requires at least puppet 0.25 to work correctly as we use some 
+# enhancements in recursive directory management and regular expressions
+# to do the work here.
 #
-# === Options:
+# USAGE:
+# The basic use case is as below:
 #
-# [*ensure*]
-#   Present/Absent
-# [*path*]
-#   The path to the final file. Use this in case you want to differentiate
-#   between the name of a resource and the file path.  Note: Use the name you
-#   provided in the target of your fragments.
-# [*owner*]
-#   Who will own the file
-# [*group*]
-#   Who will own the file
-# [*mode*]
-#   The mode of the final file
-# [*force*]
-#   Enables creating empty files if no fragments are present
-# [*warn*]
-#   Adds a normal shell style comment top of the file indicating that it is
-#   built by puppet
-# [*warn_message*]
-#   A custom message string that overides the default.
-# [*force*]
-# [*backup*]
-#   Controls the filebucketing behavior of the final file and see File type
-#   reference for its use.  Defaults to 'puppet'
-# [*replace*]
-#   Whether to replace a file that already exists on the local system
-# [*order*]
-# [*ensure_newline*]
+# concat{"/etc/named.conf": 
+#    notify => Service["named"]
+# }
 #
-# === Actions:
-# * Creates fragment directories if it didn't exist already
-# * Executes the concatfragments.sh script to build the final file, this
-#   script will create directory/fragments.concat.   Execution happens only
-#   when:
-#   * The directory changes
-#   * fragments.concat != final destination, this means rebuilds will happen
-#     whenever someone changes or deletes the final file.  Checking is done
-#     using /usr/bin/cmp.
-#   * The Exec gets notified by something else - like the concat::fragment
-#     define
-# * Copies the file over to the final destination using a file resource
+# concat::fragment{"foo.com_config":
+#    target  => "/etc/named.conf",
+#    order   => 10,
+#    content => template("named_conf_zone.erb")
+# }
 #
-# === Aliases:
+# # add a fragment not managed by puppet so local users 
+# # can add content to managed file
+# concat::fragment{"foo.com_user_config":
+#    target  => "/etc/named.conf",
+#    order   => 12,
+#    ensure  => "/etc/named.conf.local"
+# }
 #
-# * The exec can notified using Exec["concat_/path/to/file"] or
-#   Exec["concat_/path/to/directory"]
-# * The final file can be referened as File["/path/to/file"] or
-#   File["concat_/path/to/file"]
+# This will use the template named_conf_zone.erb to build a single 
+# bit of config up and put it into the fragments dir.  The file
+# will have an number prefix of 10, you can use the order option
+# to control that and thus control the order the final file gets built in.
 #
-define concat(
-  $ensure         = 'present',
-  $path           = $name,
-  $owner          = undef,
-  $group          = undef,
-  $mode           = '0644',
-  $warn           = false,
-  $warn_message   = undef,
-  $force          = false,
-  $backup         = 'puppet',
-  $replace        = true,
-  $order          = 'alpha',
-  $ensure_newline = false
-) {
-  validate_re($ensure, '^present$|^absent$')
-  validate_absolute_path($path)
-  validate_string($owner)
-  validate_string($group)
-  validate_string($mode)
-  validate_bool($warn)
-  validate_string($warn_message)
-  validate_bool($force)
-  validate_string($backup)
-  validate_bool($replace)
-  validate_re($order, '^alpha$|^numeric$')
-  validate_bool($ensure_newline)
+# SETUP:
+# The class concat::setup defines a variable $concatdir - you should set this
+# to a directory where you want all the temporary files and fragments to be
+# stored.  Avoid placing this somewhere like /tmp since you should never
+# delete files here, puppet will manage them.
+#
+# There's some regular expression magic to figure out the puppet version but
+# if you're on an older 0.24 version just set $puppetversion = 24
+#
+# Before you can use any of the concat features you should include the 
+# class concat::setup somewhere on your node first.
+#
+# DETAIL:
+# We use a helper shell script called concatfragments.sh that gets placed
+# in /usr/local/bin to do the concatenation.  While this might seem more 
+# complex than some of the one-liner alternatives you might find on the net
+# we do a lot of error checking and safety checks in the script to avoid 
+# problems that might be caused by complex escaping errors etc.
+# 
+# LICENSE:
+# Apache Version 2
+#
+# LATEST:
+# http://github.com/ripienaar/puppet-concat/
+#
+# CONTACT:
+# R.I.Pienaar <rip@devco.net> 
+# Volcane on freenode
+# @ripienaar on twitter
+# www.devco.net
 
-  include concat::setup
 
-  $safe_name            = regsubst($name, '[/:]', '_', 'G')
-  $concatdir            = $concat::setup::concatdir
-  $fragdir              = "${concatdir}/${safe_name}"
-  $concat_name          = 'fragments.concat.out'
-  $script_command       = $concat::setup::script_command
-  $default_warn_message = '# This file is managed by Puppet. DO NOT EDIT.'
+# Sets up so that you can use fragments to build a final config file, 
+#
+# OPTIONS:
+#  - mode       The mode of the final file
+#  - owner      Who will own the file
+#  - group      Who will own the file
+#  - force      Enables creating empty files if no fragments are present
+#  - warn       Adds a normal shell style comment top of the file indicating
+#               that it is built by puppet
+#  - backup     Controls the filebucketing behavior of the final file and
+#               see File type reference for its use.  Defaults to 'puppet'
+#
+# ACTIONS:
+#  - Creates fragment directories if it didn't exist already
+#  - Executes the concatfragments.sh script to build the final file, this script will create
+#    directory/fragments.concat.   Execution happens only when:
+#    * The directory changes 
+#    * fragments.concat != final destination, this means rebuilds will happen whenever 
+#      someone changes or deletes the final file.  Checking is done using /usr/bin/cmp.
+#    * The Exec gets notified by something else - like the concat::fragment define
+#  - Copies the file over to the final destination using a file resource
+#
+# ALIASES:
+#  - The exec can notified using Exec["concat_/path/to/file"] or Exec["concat_/path/to/directory"]
+#  - The final file can be referened as File["/path/to/file"] or File["concat_/path/to/file"]  
+define concat($mode = 0644, $owner = "root", $group = $concat::setup::root_group, $warn = "false", $force = "false", $backup = "puppet", $gnu = "true", $order="alpha") {
+    $safe_name   = regsubst($name, '/', '_', 'G')
+    $concatdir   = $concat::setup::concatdir
+    $version     = $concat::setup::majorversion
+    $fragdir     = "${concatdir}/${safe_name}"
+    $concat_name = "fragments.concat.out"
+    $default_warn_message = '# This file is managed by Puppet. DO NOT EDIT.'
 
-  if $warn == true {
-    $use_warn_message = $warn_message ? {
-      undef   => $default_warn_message,
-      default => $warn_message,
-    }
-  } else {
-    $use_warn_message = undef
-  }
-
-  $warnmsg_escaped = regsubst($use_warn_message, "'", "'\\\\''", 'G')
-  $warnflag = $warnmsg_escaped ? {
-    ''      => '',
-    default => "-w '${warnmsg_escaped}'"
-  }
-
-  $forceflag = $force ? {
-    true  => '-f',
-    false => '',
-  }
-
-  $orderflag = $order ? {
-    'numeric' => '-n',
-    'alpha'   => '',
-  }
-
-  $newlineflag = $ensure_newline ? {
-    true  => '-l',
-    false => '',
-  }
-
-  File {
-    owner   => $owner,
-    group   => $group,
-    mode    => $mode,
-    replace => $replace,
-    backup  => false,
-  }
-
-  if $ensure == 'present' {
-    file { $fragdir:
-      ensure => directory,
+    case $warn {
+        'true',true,yes,on:   { $warnmsg = "$default_warn_message" }
+        'false',false,no,off: { $warnmsg = "" }
+        default:              { $warnmsg = "$warn" }
     }
 
-    file { "${fragdir}/fragments":
-      ensure  => directory,
-      force   => true,
-      ignore  => ['.svn', '.git', '.gitignore'],
-      notify  => Exec["concat_${name}"],
-      purge   => true,
-      recurse => true,
+    $warnmsg_escaped = regsubst($warnmsg, "'", "'\\\\''", 'G')
+    $warnflag = $warnmsg_escaped ? {
+        ''      => '',
+        default => "-w '$warnmsg_escaped'"
     }
 
-    file { "${fragdir}/fragments.concat":
-      ensure => present,
+    case $force {
+        'true',true,yes,on: { $forceflag = "-f" }
+        'false',false,no,off: { $forceflag = "" }
+        default: { fail("Improper 'force' value given to concat: $force") }
     }
 
-    file { "${fragdir}/${concat_name}":
-      ensure => present,
+    case $gnu {
+        'true',true,yes,on: { $gnuflag = "" }
+        'false',false,no,off: { $gnuflag = "-g" }
+        default: { fail("Improper 'gnu' value given to concat: $gnu") }
     }
 
-    file { $name:
-      ensure => present,
-      path   => $path,
-      alias  => "concat_${name}",
-      source => "${fragdir}/${concat_name}",
-      backup => $backup,
+    case $order {
+        numeric: { $orderflag = "-n" }
+        alpha: { $orderflag = "" }
+        default: { fail("Improper 'order' value given to concat: $order") }
     }
 
-    # remove extra whitespace from string interopolation to make testing easier
-    $command = strip(regsubst("${script_command} -o ${fragdir}/${concat_name} -d ${fragdir} ${warnflag} ${forceflag} ${orderflag} ${newlineflag}", '\s+', ' ', 'G'))
-
-    exec { "concat_${name}":
-      alias     => "concat_${fragdir}",
-      command   => $command,
-      user      => $owner,
-      group     => $group,
-      notify    => File[$name],
-      subscribe => File[$fragdir],
-      unless    => "${command} -t",
-      path      => $::path,
-      require   => [
-        File[$fragdir],
-        File["${fragdir}/fragments"],
-        File["${fragdir}/fragments.concat"],
-      ],
-    }
-  } else {
-    file { [
-      $fragdir,
-      "${fragdir}/fragments",
-      "${fragdir}/fragments.concat",
-      "${fragdir}/${concat_name}"
-    ]:
-      ensure => absent,
-      force  => true,
+    File{
+        owner  => root,
+        group  => $group,
+        mode   => $mode,
+        backup => $backup
     }
 
-    file { $name:
-      ensure => absent,
-      backup => $backup,
+    file{$fragdir:
+            ensure   => directory;
+
+         "${fragdir}/fragments":
+            ensure   => directory,
+            recurse  => true,
+            purge    => true,
+            force    => true,
+            ignore   => [".svn", ".git", ".gitignore"],
+            source   => $version ? {
+                            24      => "puppet:///concat/null",
+                            default => undef,
+                        },
+            notify   => Exec["concat_${name}"];
+
+         "${fragdir}/fragments.concat":
+            ensure   => present;
+
+         "${fragdir}/${concat_name}":
+            ensure   => present;
+
+         $name:
+            source   => "${fragdir}/${concat_name}",
+            owner    => $owner,
+            group    => $group,
+            checksum => md5,
+            mode     => $mode,
+            ensure   => present,
+            alias    => "concat_${name}";
     }
 
-    $absent_exec_command = $::kernel ? {
-      'windows' => 'cmd.exe /c exit 0',
-      default   => 'true',
+    exec{"concat_${name}":
+        user      => root,
+        group     => $group,
+        notify    => File[$name],
+        subscribe => File[$fragdir],
+        alias     => "concat_${fragdir}",
+        require   => [ File["/usr/local/bin/concatfragments.sh"], File[$fragdir], File["${fragdir}/fragments"], File["${fragdir}/fragments.concat"] ],
+        unless    => "/usr/local/bin/concatfragments.sh -o ${fragdir}/${concat_name} -d ${fragdir} -t ${warnflag} ${forceflag} ${orderflag} ${gnuflag}",
+        command   => "/usr/local/bin/concatfragments.sh -o ${fragdir}/${concat_name} -d ${fragdir} ${warnflag} ${forceflag} ${orderflag} ${gnuflag}",
     }
-
-    $absent_exec_path = $::kernel ? {
-      'windows' => $::path,
-      default   => '/bin:/usr/bin',
-    }
-
-    exec { "concat_${name}":
-      alias   => "concat_${fragdir}",
-      command => $absent_exec_command,
-      path    => $absent_exec_path
-    }
-  }
 }
-
-# vim:sw=2:ts=2:expandtab:textwidth=79
